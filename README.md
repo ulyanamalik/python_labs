@@ -19,8 +19,7 @@
 <img width="266" height="115" alt="Снимок экрана 2025-09-22 131737" src="https://github.com/user-attachments/assets/f0f34a6b-9f4f-4aa6-bfa9-00d29cfe54c7" />
 
 ## Задание №5
-
-<img width="1111" height="253" alt="Снимок экрана 2025-09-21 182015" src="https://github.com/user-attachments/assets/143a119a-0a23-4f93-a874-69244bdd9134" />
+<img width="414" height="133" alt="Снимок экрана 2025-09-23 131726" src="https://github.com/user-attachments/assets/4b1a61c1-df70-4470-aff0-9c4fa3c56fae" />
 <img width="692" height="151" alt="Снимок экрана 2025-09-21 182019" src="https://github.com/user-attachments/assets/148fda98-7454-414c-957b-ae00a91a1645" />
 
 
