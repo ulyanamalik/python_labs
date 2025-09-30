@@ -5,9 +5,8 @@
 
 ## Задание №2
 
-<img width="1362" height="318" alt="Снимок экрана 2025-09-21 173352" src="https://github.com/user-attachments/assets/afdb9c6c-2d76-4bc8-b97b-44c10125a033" />
-<img width="461" height="109" alt="Снимок экрана 2025-09-21 173418" src="https://github.com/user-attachments/assets/137441c4-3c7d-4a5f-ac51-5f02205cf319" />
-
+<img width="1011" height="495" alt="Снимок экрана 2025-09-30 094011" src="https://github.com/user-attachments/assets/1b1e518f-8ffe-4c4d-9c5f-c26fb863a838" />
+<img width="412" height="103" alt="Снимок экрана 2025-09-30 094019" src="https://github.com/user-attachments/assets/0230a13a-b08b-4589-8e92-223388ea885c" />
 ## Задание №3
 
 <img width="975" height="350" alt="Снимок экрана 2025-09-21 180156" src="https://github.com/user-attachments/assets/d802e9ea-dedb-43c4-b0ee-7e6b26c10787" />
