@@ -7,6 +7,7 @@
 
 <img width="1011" height="495" alt="Снимок экрана 2025-09-30 094011" src="https://github.com/user-attachments/assets/1b1e518f-8ffe-4c4d-9c5f-c26fb863a838" />
 <img width="412" height="103" alt="Снимок экрана 2025-09-30 094019" src="https://github.com/user-attachments/assets/0230a13a-b08b-4589-8e92-223388ea885c" />
+
 ## Задание №3
 
 <img width="975" height="350" alt="Снимок экрана 2025-09-21 180156" src="https://github.com/user-attachments/assets/d802e9ea-dedb-43c4-b0ee-7e6b26c10787" />
