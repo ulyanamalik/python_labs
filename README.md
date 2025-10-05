@@ -1,6 +1,8 @@
 # Лабораторная работа №1
 ## Задание №1
-<img width="998" height="198" alt="Снимок экрана 2025-09-21 171337" src="https://github.com/user-attachments/assets/6838d4b9-5ccc-4ecc-9258-3fa4f169be92" />
+name=input('имя:')
+a=int(input('возраст:'))
+print(f'Привет, {name}!Через год тебе будет {a+1}')
 <img width="611" height="159" alt="Снимок экрана 2025-09-21 171347" src="https://github.com/user-attachments/assets/3c3fd911-4d82-4b00-bc60-c74cd1c5e14b" />
 
 ## Задание №2
