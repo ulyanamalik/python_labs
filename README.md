@@ -80,6 +80,7 @@ if __name__ == "__main__":
     main()
 ```
 <img width="508" height="174" alt="Снимок экрана 2025-10-14 111406" src="https://github.com/user-attachments/assets/a2332a76-d197-4c5f-a645-aeddaaa88f48" />
+<img width="305" height="197" alt="Снимок экрана 2025-10-14 115716" src="https://github.com/user-attachments/assets/6a6d135a-d1f2-4c48-8936-9299277426eb" />
 
 # Лабораторная работа №2
 
