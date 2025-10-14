@@ -47,7 +47,7 @@ tokens_example_2 = ["bb", "aa", "bb", "aa", "cc"]
 freq_example_2 = count_freq(tokens_example_2)
 print(top_n(freq_example_2, n=2))
 ```
-<img width="1569" height="103" alt="Снимок экрана 2025-10-14 112929" src="https://github.com/user-attachments/assets/33a18e76-2a05-4728-a598-a4623020a4ea" />
+
 
 <img width="1189" height="688" alt="Снимок экрана 2025-10-13 233444" src="https://github.com/user-attachments/assets/9c6d08bf-8f74-4118-96eb-bd0d6877ff9f" />
 
