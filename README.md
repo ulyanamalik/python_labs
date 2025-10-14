@@ -47,9 +47,41 @@ tokens_example_2 = ["bb", "aa", "bb", "aa", "cc"]
 freq_example_2 = count_freq(tokens_example_2)
 print(top_n(freq_example_2, n=2))
 ```
+
+
 <img width="1189" height="688" alt="Снимок экрана 2025-10-13 233444" src="https://github.com/user-attachments/assets/9c6d08bf-8f74-4118-96eb-bd0d6877ff9f" />
 
+# Задание №2-text_stats.py
+```
+from text import normalize,tokenize,count_freq,top_n
+import sys
 
+
+def main():
+    text = sys.stdin.read()
+
+    if not text.strip():
+        print("Нет входных данных")
+        return
+    normalized_text = normalize(text)
+    tokens = tokenize(normalized_text)
+
+
+    total_words = len(tokens)
+    freq_dict = count_freq(tokens)
+    unique_words = len(freq_dict)
+    top_words = top_n(freq_dict, 5)
+    print(f"Всего слов: {total_words}")
+    print(f"Уникальных слов: {unique_words}")
+    print("Топ-5:")
+    for word, count in top_words:
+        print(f"{word}:{count}")
+if __name__ == "__main__":
+    main()
+```
+<img width="1773" height="85" alt="Снимок экрана 2025-10-14 114429" src="https://github.com/user-attachments/assets/4ed63fc7-f2b4-4b00-89b4-96606728455d" />
+
+<img width="305" height="197" alt="Снимок экрана 2025-10-14 115716" src="https://github.com/user-attachments/assets/6a6d135a-d1f2-4c48-8936-9299277426eb" />
 
 # Лабораторная работа №2
 
