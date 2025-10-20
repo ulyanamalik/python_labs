@@ -1,4 +1,4 @@
-from lib.text import normalize,tokenize,count_freq,top_n
+from text import normalize,tokenize,count_freq,top_n
 import sys
 
 
@@ -23,5 +23,6 @@ def main():
     print("Топ-5:")
     for word, count in top_words:
         print(f"{word}:{count}")
-if name == "__main__":
+if __name__ == "__main__":
     main()
+
