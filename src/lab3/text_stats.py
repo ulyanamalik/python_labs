@@ -1,4 +1,4 @@
-from text import normalize,tokenize,count_freq,top_n
+from lib.text import normalize,tokenize,count_freq,top_n
 import sys
 
 
