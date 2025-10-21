@@ -146,6 +146,15 @@ if in1:
     for i in sorted_words[:5]:                                     # берем первые 5 элементов из отсортированного списка
         print(i[0], i[1])                                          # печатаем слово и сколько раз оно встретилось
 ```
+### Код
+<img width="1742" height="1204" alt="Снимок экрана 2025-10-21 114740" src="https://github.com/user-attachments/assets/dbe3b99c-b9c2-4051-b151-7efd50cfa9aa" />
+
+### Вывод
+<img width="843" height="439" alt="Снимок экрана 2025-10-21 111725" src="https://github.com/user-attachments/assets/86e9dc89-f395-47ba-909b-dd034b07cd54" />
+<img width="912" height="594" alt="Снимок экрана 2025-10-21 111721" src="https://github.com/user-attachments/assets/4d9f714a-9ae0-4d50-9b8c-ad87ee730612" />
+<img width="771" height="295" alt="Снимок экрана 2025-10-21 111657" src="https://github.com/user-attachments/assets/1cf8126d-c6b1-42ab-b29f-022f34a3eeec" />
+
+
 
 # Лабораторная №3
 ## Задание №1-text.py
