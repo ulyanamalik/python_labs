@@ -2,55 +2,68 @@
 ## Задание А-text.py
 ```
 # ИМПОРТЫ: подключаем нужные инструменты
-from pathlib import Path  # инструмент для работы с путями файлов
-import csv  # инструмент для работы с Excel-таблицами (CSV-файлами)
-import os  # доступ к системным штукам типа создания папок
-from typing import List, Tuple, Optional, Union, AnyStr  # это для умников - чтобы понимать какие типы данных можно использовать
+
+
+from pathlib import Path                              # инструмент для работы с путями файлов
+import csv                                            # инструмент для работы с Excel-таблицами (CSV-файлами)
+import os                                             # доступ к системным штукам типа создания папок
+from typing import List, Tuple, Optional, Union, AnyStr                     # чтобы понимать какие типы данных можно использовать
 
 
 # ФУНКЦИЯ 1: читаем текст из файла
+
+
 def read_text(path: Union[str, Path], encoding: str = "utf-8") -> str:
     try:
-        return Path(path).read_text(encoding=encoding)  # пытаемся прочитать файл
+        return Path(path).read_text(encoding=encoding)                    # пытаемся прочитать файл
     except FileNotFoundError:
-        return "Файл не найден."  # если файла нет - верни эту надпись
+        return "Файл не найден."                                          # если файла нет - верни эту надпись
     except UnicodeDecodeError:
-        return "Ошибка изменения кодировки."  # если файл содержит странные символы
+        return "Ошибка изменения кодировки."                              # если файл содержит странные символы
 
 
 # ФУНКЦИЯ 2: записываем данные в CSV-таблицу
+
+
 def write_csv(
-    rows: List[Union[Tuple[AnyStr, ...], List[AnyStr]]],  # принимаем строки данных
-    path: Union[str, Path],  # и путь куда сохранить
-    header: Optional[Tuple[str, ...]] = None,  # заголовки таблицы (необязательно)
+    rows: List[Union[Tuple[AnyStr, ...], List[AnyStr]]],                  # принимаем строки данных
+    path: Union[str, Path],                                               # и путь куда сохранить
+    header: Optional[Tuple[str, ...]] = None,                             # заголовки таблицы (необязательно)
 ) -> None:
-    p = Path(path)  # превращаем путь в понятный для Python формат
+    p = Path(path)                                                        # превращаем путь в понятный для Python формат
     
-    with p.open('w', newline='', encoding='utf-8') as file:  # открываем файл для записи
-        writer = csv.writer(file)  # создаем "писаря" для табличных данных
+    with p.open('w', newline='', encoding='utf-8') as file:               # открываем файл для записи
+        writer = csv.writer(file)                                         # создаем "писаря" для табличных данных
         
         # Если не передали ни заголовков, ни данных - запишем стандартные заголовки
+
+
         if header is None and rows == []:
             writer.writerow(['a', 'b'])
             
         # Если передали заголовки - запишем их первой строкой
+
+
         elif header is not None:
             writer.writerow(header)
         
         # Проверяем что ВСЕ строки имеют одинаковое количество элементов
+
         if rows:
-            first_row_len = len(rows[0])  # запоминаем длину первой строки
+            first_row_len = len(rows[0])                                     # запоминаем длину первой строки
             for row in rows:
-                if len(row) != first_row_len:  # если какая-то строка другой длины
-                    raise ValueError(f"Все строки должны иметь одинаковую длину ({first_row_len}). Получено {len(row)} элементов.")  # ругаемся
+                if len(row) != first_row_len:                                # если какая-то строка другой длины
+                    raise ValueError(f"Все строки должны иметь одинаковую длину ({first_row_len}). Получено {len(row)} элементов.")         # ругаемся
     
-        writer.writerows(rows)  # записываем все данные в файл
+        writer.writerows(rows)                      # записываем все данные в файл
 
 
 # ФУНКЦИЯ 3: создаем папку для файла если ее нет
+
+
 def ensure_parent_dir(path: Union[str, Path]) -> None:
-    parent_path = os.path.dirname(str(path))  # достаем из пути к файлу путь к папке
-    Path(parent_path).mkdir(parents=True, exist_ok=True)  # создаем папку (и все промежуточные если нужно)
+    parent_path = os.path.dirname(str(path))                            # достаем из пути к файлу путь к папке
+    Path(parent_path).mkdir(parents=True, exist_ok=True)                # создаем папку (и все промежуточные если нужно)
 
 
 # ПРИМЕРЫ ИСПОЛЬЗОВАНИЯ:
@@ -62,7 +75,77 @@ print(read_text(r"C:\Users\1\Documents\GitHub\ulyana\data\input.txt"))
 write_csv([("word", "count"), ("test", 3)],r"C:\Users\1\Documents\GitHub\ulyana\data\check.csv")          # первая строка - заголовки, вторая - данные
 ```
 
+### Код
+<img width="1350" height="1331" alt="Снимок экрана 2025-10-21 113503" src="https://github.com/user-attachments/assets/fb385380-d137-4eb9-8730-c909d744bc66" />
+<img width="2081" height="848" alt="Снимок экрана 2025-10-21 113537" src="https://github.com/user-attachments/assets/9f0c5938-be4b-4604-9af7-de54932feec1" />
 
+### Вывод
+<img width="838" height="721" alt="image" src="https://github.com/user-attachments/assets/1d2836c1-c244-4da3-9503-145649e287c1" />
+
+## Задание В
+```
+# ПОДКЛЮЧАЕМ ВСЕ НЕОБХОДИМЫЕ ИНСТРОУМЕНТЫ
+import sys, csv, os                  # системные штуки, работа с таблицами, работа с файлами
+
+# Добавляем путь к нашим собственным модулям (как сказать Python где искать наши файлы)
+
+sys.path.append(r"C:\Users\1\Documents\GitHub\ulyana\src")
+
+# ИМПОРТИРУЕМ НАШИ СОБСТВЕННЫЕ ФУНКЦИИ:
+
+from text3 import normalize, tokenize, top_n, count_freq              # функции для работы с текстом
+from io_txt_csv import read_text, write_csv, ensure_parent_dir        # функции для чтения/записи файлов
+
+# НАСТРОЙКА РЕЖИМА РАБОТЫ
+in1 = True                         # флаг "работать в режиме одного файла"
+
+# ЕСЛИ РЕЖИМ ОДНОГО ФАЙЛА ВКЛЮЧЕН:
+if in1:
+    print("Режим один файл:")      # сообщаем пользователю в каком режиме работаем
+
+    # Указываем путь к файлу который будем анализировать
+
+    path = r"C:\Users\1\Documents\GitHub\ulyana\src\data\input.txt"
+    
+    # ЧИТАЕМ И АНАЛИЗИРУЕМ ТЕКСТ:
+
+    text = read_text(path)             # читаем весь текст из файла
+    words = tokenize(normalize(text))  # очищаем текст и разбиваем на отдельные слова
+    
+    # СЧИТАЕМ СТАТИСТИКУ:
+
+    total_words = len(words)     # общее количество всех слов
+    freqs = count_freq(words)    # подсчитываем сколько раз каждое слово встречается
+    unique_words = len(freqs)    # количество уникальных слов
+    
+    # СОРТИРУЕМ СЛОВА по частоте (сначала самые частые, потом по алфавиту)
+    sorted_words = sorted(freqs.items(), key=lambda x: (-x[1], x[0]))     # lambda анонимная функция,которая записывает по убыванию сначала самые частые
+
+    # ПОДГОТАВЛИВАЕМ ПУТИ ДЛЯ СОХРАНЕНИЯ РЕЗУЛЬТАТОВ:
+
+    output_dir = r"C:\Users\1\Documents\GitHub\ulyana\src\data"           # папка куда сохраним
+    ensure_parent_dir(r"C:\Users\1\Documents\GitHub\ulyana\src\data")     # создаем папку если нет
+
+    # СОЗДАЕМ CSV-ФАЙЛ С РЕЗУЛЬТАТАМИ:
+    output_path = os.path.join(output_dir, "report.csv")                  # полный путь к файлу отчета
+    
+    # Открываем файл для записи с правильной кодировкой для русских букв
+
+    with open(output_path, "w", encoding="cp65001", newline="") as f:
+        writer = csv.writer(f)                                           # создаем "писаря" для таблицы
+        writer.writerow(["word", "count"])                               # записываем заголовки таблицы
+        writer.writerows(sorted_words)                                   # записываем все данные (слова и их частоты)
+
+    # ВЫВОДИМ РЕЗУЛЬТАТЫ НА ЭКРАН:
+    print(f"Всего слов: {total_words}")                                  # показываем общее количество слов
+    print(f"Уникальных слов: {unique_words}")                            # показываем количество разных слов
+    print("Топ-5:")  # заголовок для топ-5 слов
+    
+    # Показываем 5 самых частых слов (или все если слов меньше 5)
+
+    for i in sorted_words[:5]:                                     # берем первые 5 элементов из отсортированного списка
+        print(i[0], i[1])                                          # печатаем слово и сколько раз оно встретилось
+```
 
 # Лабораторная №3
 ## Задание №1-text.py
