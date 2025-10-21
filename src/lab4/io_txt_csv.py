@@ -40,7 +40,7 @@ def ensure_parent_dir(path: Union[str, Path]) -> None:
     parent_path = os.path.dirname(str(path))
     Path(parent_path).mkdir(parents=True, exist_ok=True)
 
-# Тестируем чтение текста
+
 print(read_text(r"C:\Users\1\Documents\GitHub\ulyana\data\input.txt"))
 
 # Запись CSV-файла

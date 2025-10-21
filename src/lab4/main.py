@@ -1,7 +1,5 @@
-from lab4.text3 import normalize,tokenize,count_freq,top_n
+from text3 import normalize,tokenize,count_freq,top_n
 import sys
-
-
 def main():
     text = sys.stdin.read()
 
@@ -23,6 +21,3 @@ def main():
     print("Топ-5:")
     for word, count in top_words:
         print(f"{word}:{count}")
-if __name__ == "__main__":
-    main()
-
