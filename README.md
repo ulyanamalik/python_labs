@@ -1,3 +1,69 @@
+# Лабораторная №4
+## Задание А-text.py
+```
+# ИМПОРТЫ: подключаем нужные инструменты
+from pathlib import Path  # инструмент для работы с путями файлов
+import csv  # инструмент для работы с Excel-таблицами (CSV-файлами)
+import os  # доступ к системным штукам типа создания папок
+from typing import List, Tuple, Optional, Union, AnyStr  # это для умников - чтобы понимать какие типы данных можно использовать
+
+
+# ФУНКЦИЯ 1: читаем текст из файла
+def read_text(path: Union[str, Path], encoding: str = "utf-8") -> str:
+    try:
+        return Path(path).read_text(encoding=encoding)  # пытаемся прочитать файл
+    except FileNotFoundError:
+        return "Файл не найден."  # если файла нет - верни эту надпись
+    except UnicodeDecodeError:
+        return "Ошибка изменения кодировки."  # если файл содержит странные символы
+
+
+# ФУНКЦИЯ 2: записываем данные в CSV-таблицу
+def write_csv(
+    rows: List[Union[Tuple[AnyStr, ...], List[AnyStr]]],  # принимаем строки данных
+    path: Union[str, Path],  # и путь куда сохранить
+    header: Optional[Tuple[str, ...]] = None,  # заголовки таблицы (необязательно)
+) -> None:
+    p = Path(path)  # превращаем путь в понятный для Python формат
+    
+    with p.open('w', newline='', encoding='utf-8') as file:  # открываем файл для записи
+        writer = csv.writer(file)  # создаем "писаря" для табличных данных
+        
+        # Если не передали ни заголовков, ни данных - запишем стандартные заголовки
+        if header is None and rows == []:
+            writer.writerow(['a', 'b'])
+            
+        # Если передали заголовки - запишем их первой строкой
+        elif header is not None:
+            writer.writerow(header)
+        
+        # Проверяем что ВСЕ строки имеют одинаковое количество элементов
+        if rows:
+            first_row_len = len(rows[0])  # запоминаем длину первой строки
+            for row in rows:
+                if len(row) != first_row_len:  # если какая-то строка другой длины
+                    raise ValueError(f"Все строки должны иметь одинаковую длину ({first_row_len}). Получено {len(row)} элементов.")  # ругаемся
+    
+        writer.writerows(rows)  # записываем все данные в файл
+
+
+# ФУНКЦИЯ 3: создаем папку для файла если ее нет
+def ensure_parent_dir(path: Union[str, Path]) -> None:
+    parent_path = os.path.dirname(str(path))  # достаем из пути к файлу путь к папке
+    Path(parent_path).mkdir(parents=True, exist_ok=True)  # создаем папку (и все промежуточные если нужно)
+
+
+# ПРИМЕРЫ ИСПОЛЬЗОВАНИЯ:
+
+# Пример 1: читаем текстовый файл и печатаем что в нем
+print(read_text(r"C:\Users\1\Documents\GitHub\ulyana\data\input.txt"))
+
+# Пример 2: создаем CSV-файл с двумя строками
+write_csv([("word", "count"), ("test", 3)],r"C:\Users\1\Documents\GitHub\ulyana\data\check.csv")          # первая строка - заголовки, вторая - данные
+```
+
+
+
 # Лабораторная №3
 ## Задание №1-text.py
 ```
