@@ -1,5 +1,184 @@
+
+# Лабораторная №5
+
+## Задание А
+```
+import json   # Импортируем библиотеку для работы с JSON файлами
+import csv    # Импортируем библиотеку для работы с CSV файлами
+from pathlib import Path  # Используем модуль Path для удобной работы с путями файлов
+
+# Функция для преобразования JSON файла в CSV файл
+def json_to_csv(json_path: str, csv_path: str) -> None:
+    """
+    Преобразует содержимое JSON файла в CSV файл.
+    :param json_path: путь к исходному JSON файлу
+    :param csv_path: путь к результирующему CSV файлу
+    """
+
+    # Создаем объект пути для JSON файла
+    json_file = Path(json_path)
+    
+    # Проверяем существование JSON файла
+    if not json_file.exists():  
+        # Если файл не существует, поднимаем исключение
+        raise FileNotFoundError(f"Файл {json_path} не найден.")  # [1]
+    
+    # Открываем JSON файл для чтения
+    with json_file.open('r', encoding='utf-8') as f:
+        # Загружаем данные из JSON файла
+        data = json.load(f)  # [2]
+        
+    # Проверяем структуру данных (список словарей)
+    if not isinstance(data, list) or not all(isinstance(item, dict) for item in data):
+        # Поднимаем ошибку, если структура неверная
+        raise ValueError("JSON должен содержать список словарей.")  # [3]
+    
+    # Определяем заголовки столбцов путем объединения всех ключей из каждого элемента списка
+    headers = set()                   # [4]
+    for item in data:
+        headers.update(item.keys())   # Добавляем ключи текущего элемента в общий набор
+    headers = sorted(headers)         # Сортируем заголовки для упорядоченности
+    
+    # Открываем CSV файл для записи
+    with Path(csv_path).open('w', newline='', encoding='utf-8') as f:
+        # Создаем объект DictWriter для записи словарей в CSV
+        writer = csv.DictWriter(f, fieldnames=headers)  # [5]
+        # Записываем строку заголовков
+        writer.writeheader()                           # [6]
+        # Записываем строки данных
+        writer.writerows(data)                         # [7]
+
+# Функция для преобразования CSV файла в JSON файл
+def csv_to_json(csv_path: str, json_path: str) -> None:
+    """
+    Преобразует содержимое CSV файла в JSON файл.
+    :param csv_path: путь к исходному CSV файлу
+    :param json_path: путь к результирующему JSON файлу
+    """
+
+    # Создаем объект пути для CSV файла
+    csv_file = Path(csv_path)
+    
+    # Проверяем существование CSV файла
+    if not csv_file.exists():
+        # Если файл не существует, поднимаем исключение
+        raise FileNotFoundError(f"Файл {csv_path} не найден.")  # [8]
+    
+    # Открываем CSV файл для чтения
+    with csv_file.open('r', encoding='utf-8') as f:
+        # Читаем CSV файл строка за строкой, создавая словарь для каждой строки
+        reader = csv.DictReader(f)                       # [9]
+        # Преобразуем прочитанные строки в список словарей
+        data = list(reader)                              # [10]
+    
+    # Проверяем наличие данных в списке
+    if not data:
+        # Поднимаем ошибку, если CSV файл пустой
+        raise ValueError("CSV-файл пуст.")               # [11]
+    
+    # Открываем JSON файл для записи
+    with Path(json_path).open('w', encoding='utf-8') as f:
+        # Записываем преобразованные данные в JSON файл
+        json.dump(data, f, ensure_ascii=False, indent=2) # [12]
+
+# Основная секция программы
+if __name__ == "__main__":
+    # Выполняем преобразование JSON->CSV и CSV->JSON
+    json_to_csv("data/samples/people.json", "data/out/people_from_json.csv")  # [13]
+    csv_to_json("data/samples/people.csv", "data/out/people_from_csv.json")   # [14]
+
+
+
+```
+### Вывод
+
+<img width="1328" height="475" alt="Снимок экрана 2025-10-27 215615" src="https://github.com/user-attachments/assets/aab72703-ac78-4e96-9dd2-8b615a5cfa7e" />
+
+<img width="671" height="361" alt="Снимок экрана 2025-10-27 215625" src="https://github.com/user-attachments/assets/80e5cb55-52bf-4860-a115-30e35d6024a5" />
+
+..........................................................................................................................................................
+<img width="916" height="455" alt="Снимок экрана 2025-10-27 215636" src="https://github.com/user-attachments/assets/ac2711d0-02a5-4932-9589-ee9a9c2fdd64" />
+<img width="729" height="264" alt="Снимок экрана 2025-10-27 215656" src="https://github.com/user-attachments/assets/f369d26c-5f9c-4a1f-b375-7e6f5cc2182f" />
+
+
+## Задание В
+```
+import csv                 # Импорт библиотеки для работы с CSV файлами
+from pathlib import Path   # Импорт модуля для удобной работы с путями файлов
+from openpyxl import Workbook  # Импорт основной библиотеки для работы с Excel файлами
+from openpyxl.utils import get_column_letter  # Импорт утилиты для перевода индекса столбца в букву Excel
+
+# Функция для преобразования CSV файла в XLSX файл
+def csv_to_xlsx(csv_path: str, xlsx_path: str) -> None:
+    """
+    Конвертирует CSV в XLSX.
+    Использовать openpyxl ИЛИ xlsxwriter.
+    Первая строка CSV — заголовок. 
+    Лист называется "Sheet1".
+    Колонки — автоширина по длине текста (не менее 8 символов).
+    """
+
+    # Создание объекта пути для CSV файла
+    csv_file = Path(csv_path)
+    
+    # Проверка существования CSV файла
+    if not csv_file.exists():
+        # Поднимается исключение, если файл не найден
+        raise FileNotFoundError(f"Файл {csv_path} не найден.")  # [1]
+    
+    # Открытие CSV файла для чтения
+    with csv_file.open('r', encoding='utf-8') as f:
+        # Создается объект reader для парсинга CSV
+        reader = csv.reader(f)                               # [2]
+        # Читаются все строки CSV файла и превращаются в список списков
+        data = list(reader)                                  # [3]
+    
+    # Проверка, есть ли данные в CSV файле
+    if not data:
+        # Поднимает ошибку, если файл пуст
+        raise ValueError("CSV-файл пуст.")                  # [4]
+    
+    # Создание нового рабочего документа Excel
+    workbook = Workbook()                                    # [5]
+    # Получение активного листа
+    sheet = workbook.active                                 # [6]
+    # Переименование листа в 'Sheet1'
+    sheet.title = "Sheet1"                                 # [7]
+    
+    # Запись данных из CSV в лист Excel
+    for row in data:
+        # Каждая строка добавляется в лист
+        sheet.append(row)                                   # [8]
+    
+    # Настройка ширины столбцов автоматически
+    for col_idx, col in enumerate(sheet.columns, 1):
+        # Для каждого столбца вычисляется максимальная длина значений
+        max_length = max(len(str(cell.value)) for cell in col)  # [9]
+        # Устанавливается минимальная ширина столбца (8 символов)
+        adjusted_width = max((max_length + 2), 8)              # [10]
+        # Применение ширины столбцу по индексу
+        sheet.column_dimensions[get_column_letter(col_idx)].width = adjusted_width  # [11]
+    
+    # Сохранение Excel файла
+    workbook.save(xlsx_path)                                # [12]
+
+# Основной код программы
+if __name__ == "__main__":
+    # Примеры использования функции
+    csv_to_xlsx("data/samples/people.csv", "data/out/people.xlsx")  # [13]
+
+
+```
+
+### Вывод
+
+<img width="808" height="338" alt="Снимок экрана 2025-10-28 111731" src="https://github.com/user-attachments/assets/66c81e10-c613-4183-9a3a-1eec09c5378d" />
+
+
+<img width="1027" height="539" alt="Снимок экрана 2025-10-28 111636" src="https://github.com/user-attachments/assets/36d7d708-844e-4788-a4c8-c9bf2b77c824" />
+
 # Лабораторная №4
-## Задание А-text.py
+## Задание А
 ```
 # ИМПОРТЫ: подключаем нужные инструменты
 
