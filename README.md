@@ -101,11 +101,81 @@ if __name__ == "__main__":
 <img width="729" height="264" alt="Снимок экрана 2025-10-27 215656" src="https://github.com/user-attachments/assets/f369d26c-5f9c-4a1f-b375-7e6f5cc2182f" />
 
 
+## Задание В
+```
+import csv                 # Импорт библиотеки для работы с CSV файлами
+from pathlib import Path   # Импорт модуля для удобной работы с путями файлов
+from openpyxl import Workbook  # Импорт основной библиотеки для работы с Excel файлами
+from openpyxl.utils import get_column_letter  # Импорт утилиты для перевода индекса столбца в букву Excel
+
+# Функция для преобразования CSV файла в XLSX файл
+def csv_to_xlsx(csv_path: str, xlsx_path: str) -> None:
+    """
+    Конвертирует CSV в XLSX.
+    Использовать openpyxl ИЛИ xlsxwriter.
+    Первая строка CSV — заголовок. 
+    Лист называется "Sheet1".
+    Колонки — автоширина по длине текста (не менее 8 символов).
+    """
+
+    # Создание объекта пути для CSV файла
+    csv_file = Path(csv_path)
+    
+    # Проверка существования CSV файла
+    if not csv_file.exists():
+        # Поднимается исключение, если файл не найден
+        raise FileNotFoundError(f"Файл {csv_path} не найден.")  # [1]
+    
+    # Открытие CSV файла для чтения
+    with csv_file.open('r', encoding='utf-8') as f:
+        # Создается объект reader для парсинга CSV
+        reader = csv.reader(f)                               # [2]
+        # Читаются все строки CSV файла и превращаются в список списков
+        data = list(reader)                                  # [3]
+    
+    # Проверка, есть ли данные в CSV файле
+    if not data:
+        # Поднимает ошибку, если файл пуст
+        raise ValueError("CSV-файл пуст.")                  # [4]
+    
+    # Создание нового рабочего документа Excel
+    workbook = Workbook()                                    # [5]
+    # Получение активного листа
+    sheet = workbook.active                                 # [6]
+    # Переименование листа в 'Sheet1'
+    sheet.title = "Sheet1"                                 # [7]
+    
+    # Запись данных из CSV в лист Excel
+    for row in data:
+        # Каждая строка добавляется в лист
+        sheet.append(row)                                   # [8]
+    
+    # Настройка ширины столбцов автоматически
+    for col_idx, col in enumerate(sheet.columns, 1):
+        # Для каждого столбца вычисляется максимальная длина значений
+        max_length = max(len(str(cell.value)) for cell in col)  # [9]
+        # Устанавливается минимальная ширина столбца (8 символов)
+        adjusted_width = max((max_length + 2), 8)              # [10]
+        # Применение ширины столбцу по индексу
+        sheet.column_dimensions[get_column_letter(col_idx)].width = adjusted_width  # [11]
+    
+    # Сохранение Excel файла
+    workbook.save(xlsx_path)                                # [12]
+
+# Основной код программы
+if __name__ == "__main__":
+    # Примеры использования функции
+    csv_to_xlsx("data/samples/people.csv", "data/out/people.xlsx")  # [13]
 
 
+```
+
+### Вывод
+
+<img width="808" height="338" alt="Снимок экрана 2025-10-28 111731" src="https://github.com/user-attachments/assets/66c81e10-c613-4183-9a3a-1eec09c5378d" />
 
 
-
+<img width="1027" height="539" alt="Снимок экрана 2025-10-28 111636" src="https://github.com/user-attachments/assets/36d7d708-844e-4788-a4c8-c9bf2b77c824" />
 
 # Лабораторная №4
 ## Задание А
