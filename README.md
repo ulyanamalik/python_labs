@@ -1,11 +1,21 @@
 
 # Лабораторная №5
-
 ## Задание А
 ```
 import json   # Импортируем библиотеку для работы с JSON файлами
 import csv    # Импортируем библиотеку для работы с CSV файлами
 from pathlib import Path  # Используем модуль Path для удобной работы с путями файлов
+
+# Функция для проверки расширения файла
+def check_file_extension(file_path: str, expected_extensions: tuple) -> bool:
+    """
+    Проверяет расширение файла на совпадение с ожидаемым списком расширений.
+    :param file_path: полный путь к файлу
+    :param expected_extensions: кортеж ожидаемых расширений
+    :return: True, если расширение совпадает, иначе False
+    """
+    # Получаем суффикс файла и сравниваем его с ожидаемыми расширениями
+    return any(Path(file_path).suffix.lower().endswith(ext) for ext in expected_extensions)
 
 # Функция для преобразования JSON файла в CSV файл
 def json_to_csv(json_path: str, csv_path: str) -> None:
@@ -14,6 +24,14 @@ def json_to_csv(json_path: str, csv_path: str) -> None:
     :param json_path: путь к исходному JSON файлу
     :param csv_path: путь к результирующему CSV файлу
     """
+
+    # Проверяем расширение входящего файла
+    if not check_file_extension(json_path, ('.json',)):
+        raise ValueError(f"Входной файл '{json_path}' не является JSON.")
+
+    # Проверяем расширение выходящего файла
+    if not check_file_extension(csv_path, ('.csv',)):
+        raise ValueError(f"Выходной файл '{csv_path}' не является CSV.")
 
     # Создаем объект пути для JSON файла
     json_file = Path(json_path)
@@ -56,6 +74,14 @@ def csv_to_json(csv_path: str, json_path: str) -> None:
     :param json_path: путь к результирующему JSON файлу
     """
 
+    # Проверяем расширение входящего файла
+    if not check_file_extension(csv_path, ('.csv',)):
+        raise ValueError(f"Входной файл '{csv_path}' не является CSV.")
+
+    # Проверяем расширение выходящего файла
+    if not check_file_extension(json_path, ('.json',)):
+        raise ValueError(f"Выходной файл '{json_path}' не является JSON.")
+
     # Создаем объект пути для CSV файла
     csv_file = Path(csv_path)
     
@@ -86,9 +112,6 @@ if __name__ == "__main__":
     # Выполняем преобразование JSON->CSV и CSV->JSON
     json_to_csv("data/samples/people.json", "data/out/people_from_json.csv")  # [13]
     csv_to_json("data/samples/people.csv", "data/out/people_from_csv.json")   # [14]
-
-
-
 ```
 ### Вывод
 
@@ -103,10 +126,18 @@ if __name__ == "__main__":
 
 ## Задание В
 ```
-import csv                 # Импорт библиотеки для работы с CSV файлами
-from pathlib import Path   # Импорт модуля для удобной работы с путями файлов
+import csv                     # Импорт библиотеки для работы с CSV файлами
+from pathlib import Path       # Импорт модуля для удобной работы с путями файлов
 from openpyxl import Workbook  # Импорт основной библиотеки для работы с Excel файлами
 from openpyxl.utils import get_column_letter  # Импорт утилиты для перевода индекса столбца в букву Excel
+
+# Функция для проверки типа файла по расширению
+def check_file_type(file_path: str, valid_types: tuple) -> bool:
+    """
+    Проверяет, соответствует ли расширение файла одному из указанных типов.
+    Возвращает True, если файл имеет одно из разрешенных расширений, иначе False.
+    """
+    return Path(file_path).suffix.lower() in valid_types
 
 # Функция для преобразования CSV файла в XLSX файл
 def csv_to_xlsx(csv_path: str, xlsx_path: str) -> None:
@@ -117,6 +148,14 @@ def csv_to_xlsx(csv_path: str, xlsx_path: str) -> None:
     Лист называется "Sheet1".
     Колонки — автоширина по длине текста (не менее 8 символов).
     """
+
+    # Проверка расширения входящего файла (должен быть .csv)
+    if not check_file_type(csv_path, ('.csv',)):
+        raise ValueError(f"Входной файл '{csv_path}' не является CSV.")
+
+    # Проверка расширения выходящего файла (должен быть .xlsx)
+    if not check_file_type(xlsx_path, ('.xlsx',)):
+        raise ValueError(f"Выходной файл '{xlsx_path}' не является XLSX.")
 
     # Создание объекта пути для CSV файла
     csv_file = Path(csv_path)
@@ -166,8 +205,6 @@ def csv_to_xlsx(csv_path: str, xlsx_path: str) -> None:
 if __name__ == "__main__":
     # Примеры использования функции
     csv_to_xlsx("data/samples/people.csv", "data/out/people.xlsx")  # [13]
-
-
 ```
 
 ### Вывод
