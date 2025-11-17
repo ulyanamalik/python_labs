@@ -1,0 +1,20 @@
+[
+  {
+    "name": "Иван Иванов",
+    "age": 25,
+    "city": "Москва",
+    "email": "ivan@mail.ru"
+  },
+  {
+    "name": "Мария Петрова",
+    "age": 30,
+    "city": "Санкт-Петербург",
+    "email": "maria@yandex.ru"
+  },
+  {
+    "name": "Петр Сидоров",
+    "age": 35,
+    "city": "Казань",
+    "email": "petr@gmail.com"
+  }
+]
