@@ -95,12 +95,12 @@ if __name__ == "__main__":
 ```
 <img width="1280" height="701" alt="image" src="https://github.com/user-attachments/assets/72d81bbb-587b-462f-8ef9-e2931616dc5c" />
 
-### Структура коммандной строки
+### Коммандные строки
 ```
-python script.py cat --input file.txt -n
-python script.py stats --input file.txt --top 10
+python src\lab6\cli_text.py cat --input test.txt
+python src\lab6\cli_text.py cat --input test.txt -n
+python src\lab6\cli_text.py stats --input test.txt --top 5
 ```
-
 
 ## Задание 2
 ```
