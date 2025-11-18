@@ -173,6 +173,20 @@ python script.py json2csv --in input.json --out output.csv
 python script.py csv2json --in input.csv --out output.json  
 python script.py csv2xlsx --in input.csv --out output.xlsx
 ```
+...........................................................................................................
+<img width="1280" height="500" alt="image" src="https://github.com/user-attachments/assets/dd96a3be-94b6-4c18-a057-5e4ffe198dc0" />
+...........................................................................................................
+
+### CSV=>JSON
+<img width="1280" height="531" alt="image" src="https://github.com/user-attachments/assets/fb6b6788-ef98-4402-bddd-9e2308d8fa1f" />
+
+### JSON=>CSV
+<img width="1280" height="549" alt="image" src="https://github.com/user-attachments/assets/87572fcf-97c1-4cca-bd0a-bf570b0729b9" />
+
+### CSV=>XLSX
+<img width="1280" height="526" alt="image" src="https://github.com/user-attachments/assets/c21dfadf-1067-46b5-afdf-46f45fbeff61" />
+
+
 
 # Лабораторная №5
 ## Задание А
