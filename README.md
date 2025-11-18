@@ -1,3 +1,105 @@
+# Лабораторная №6
+## Задание 1
+```
+import sys
+import os
+import argparse
+from lib import stats_text
+
+def check_file(file_path):
+    # Проверяем, существует ли файл по указанному пути
+    if not os.path.isfile(file_path):
+        # Если файл не найден, выводим сообщение об ошибке в stderr
+        print(f"Ошибка: файл '{file_path}' не найден", file=sys.stderr)
+        return False
+    return True
+
+def show_file_content(file_path, show_numbers=False):
+    """Показывает содержимое файла"""
+    # Сначала проверяем существование файла
+    if not check_file(file_path):
+        return
+    
+    try:
+        # Открываем файл для чтения с кодировкой UTF-8
+        with open(file_path, 'r', encoding='utf-8') as file:
+            # Читаем файл построчно, enumerate добавляет номера строк (начиная с 1)
+            for i, line in enumerate(file, 1):
+                if show_numbers:
+                    # Если включен режим показа номеров, выводим номер строки (форматированный до 4 символов) и содержимое
+                    print(f"{i:4}  {line}", end='')
+                else:
+                    # Иначе выводим только содержимое строки
+                    print(line, end='')
+    except Exception as e:
+        # Обрабатываем возможные ошибки чтения файла
+        print(f"Ошибка чтения: {e}", file=sys.stderr)
+        sys.exit(1)  # Завершаем программу с кодом ошибки 1
+
+def analyze_file(file_path, top_words=5):
+    """Анализирует частоту слов в файле"""
+    # Проверяем существование файла
+    if not check_file(file_path):
+        return
+    
+    # Проверяем валидность параметра top_words
+    if top_words <= 0:
+        print("Ошибка: --top должен быть больше 0", file=sys.stderr)
+        sys.exit(1)
+    
+    try:
+        # Открываем и читаем весь файл
+        with open(file_path, 'r', encoding='utf-8') as file:
+            text = file.read()
+            # Вызываем функцию анализа текста из импортированного модуля
+            stats_text(text, top_words)
+    except Exception as e:
+        # Обрабатываем ошибки анализа
+        print(f"Ошибка анализа: {e}", file=sys.stderr)
+        sys.exit(1)
+
+def main():
+    """Главная функция"""
+    # Создаем парсер аргументов командной строки с описанием
+    parser = argparse.ArgumentParser(description="Утилита для работы с текстом")
+    
+    # Создаем подкоманды - это позволяет иметь разные команды с разными параметрами
+    subparsers = parser.add_subparsers(dest="command", help="Доступные команды")
+    
+    # Команда cat - для отображения содержимого файла
+    cat_cmd = subparsers.add_parser("cat", help="Показать содержимое файла")
+    cat_cmd.add_argument("--input", required=True, help="Путь к файлу")
+    cat_cmd.add_argument("-n", action="store_true", help="Показать номера строк")
+    
+    # Команда stats - для анализа статистики слов
+    stats_cmd = subparsers.add_parser("stats", help="Статистика слов")
+    stats_cmd.add_argument("--input", required=True, help="Путь к файлу")
+    stats_cmd.add_argument("--top", type=int, default=5, help="Количество топ-слов")
+    
+    # Разбираем аргументы командной строки
+    args = parser.parse_args()
+    
+    # Выполняем соответствующие команды на основе выбора пользователя
+    if args.command == "cat":
+        show_file_content(args.input, args.n)
+    elif args.command == "stats":
+        analyze_file(args.input, args.top)
+    else:
+        # Если команда не указана, показываем справку
+        parser.print_help()
+
+# Точка входа в программу
+if __name__ == "__main__":
+    main()
+
+```
+<img width="1280" height="701" alt="image" src="https://github.com/user-attachments/assets/72d81bbb-587b-462f-8ef9-e2931616dc5c" />
+
+
+
+
+## Задание 2
+
 
 # Лабораторная №5
 ## Задание А
