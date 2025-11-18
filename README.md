@@ -95,11 +95,84 @@ if __name__ == "__main__":
 ```
 <img width="1280" height="701" alt="image" src="https://github.com/user-attachments/assets/72d81bbb-587b-462f-8ef9-e2931616dc5c" />
 
-
+### Структура коммандной строки
+```
+python script.py cat --input file.txt -n
+python script.py stats --input file.txt --top 10
+```
 
 
 ## Задание 2
+```
+import sys
+import argparse
+from lib import csv_to_xlsx, json_to_csv, csv_to_json
+from ex1 import check_file
 
+def main():
+    # Настройка парсера аргументов командной строки
+    # создаем основной парсер с описанием программы
+    parser = argparse.ArgumentParser(description="Конвертер данных")
+    
+    # Создаем подсистему команд (subparsers) - это позволяет иметь разные команды
+    # dest="cmd" - значение выбранной команды будет храниться в атрибуте cmd
+    # required=True - обязательно должна быть указана одна из команд
+    commands = parser.add_subparsers(dest="cmd", required=True)
+    
+    # Список доступных команд конвертации
+    cmd_list = ["json2csv", "csv2json", "csv2xlsx"]
+    
+    # Динамически создаем парсер для каждой команды
+    for cmd in cmd_list:
+        # Создаем парсер для конкретной команды
+        cmd_parser = commands.add_parser(cmd)
+        
+        # Добавляем обязательные аргументы для каждой команды:
+        # --in - входной файл
+        cmd_parser.add_argument("--in", dest="input", required=True, 
+                               help="Входной файл")
+        # --out - выходной файл  
+        cmd_parser.add_argument("--out", dest="output", required=True,
+                               help="Выходной файл")
+  
+    # Парсим аргументы командной строки, переданные при запуске программы
+    args = parser.parse_args()
+    
+    # Проверяем существование входного файла с помощью импортированной функции
+    if not check_file(args.input):
+        print(f"Ошибка: Файл {args.input} не существует")
+        sys.exit(1)  # Завершаем программу с кодом ошибки 1
+    
+    # Создаем словарь действий, где ключ - название команды, значение - функция для выполнения
+    # Используем lambda-функции для отложенного выполнения
+    actions = {
+        "json2csv": lambda: json_to_csv(args.input, args.output),  # Конвертация JSON в CSV
+        "csv2json": lambda: csv_to_json(args.input, args.output),  # Конвертация CSV в JSON
+        "csv2xlsx": lambda: csv_to_xlsx(args.input, args.output)   # Конвертация CSV в XLSX
+    }
+    
+    # Выполняем выбранную команду
+    try:
+        # Вызываем соответствующую функцию из словаря actions
+        actions[args.cmd]()
+        # Если выполнение прошло успешно, выводим сообщение
+        print(f"Успешно: {args.cmd}")
+    except Exception as e:
+        # Обрабатываем возможные ошибки при конвертации
+        print(f"Ошибка конвертации: {e}")
+        sys.exit(1)  # Завершаем программу с кодом ошибки 1
+
+# Стандартная конструкция для точки входа в Python-программу
+if __name__ == "__main__":
+    main()
+
+```
+### Структура коммандной строки
+```
+python script.py json2csv --in input.json --out output.csv
+python script.py csv2json --in input.csv --out output.json  
+python script.py csv2xlsx --in input.csv --out output.xlsx
+```
 
 # Лабораторная №5
 ## Задание А
