@@ -1,4 +1,4 @@
-from lab4.text3 import normalize,tokenize,count_freq,top_n
+from lab4.text3 import normalize, tokenize, count_freq, top_n
 import sys
 
 
@@ -9,10 +9,8 @@ def main():
         print("Нет входных данных")
         return
 
-
     normalized_text = normalize(text)
     tokens = tokenize(normalized_text)
-
 
     total_words = len(tokens)
     freq_dict = count_freq(tokens)
@@ -23,6 +21,7 @@ def main():
     print("Топ-5:")
     for word, count in top_words:
         print(f"{word}:{count}")
+
+
 if __name__ == "__main__":
     main()
-

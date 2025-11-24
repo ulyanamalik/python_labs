@@ -1,6 +1,6 @@
 fio = input("ФИО:")
-fio_clean= ' '.join(fio.split())
+fio_clean = " ".join(fio.split())
 k = len(fio_clean)
-FIO=fio.split()
+FIO = fio.split()
 print(f"Инициалы: {FIO[0][:1]}{FIO[1][:1]}{FIO[2][:1]}")
 print(f"Длина: {k}")

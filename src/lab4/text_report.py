@@ -1,7 +1,9 @@
-import sys,csv,os
+import sys, csv, os
+
 sys.path.append(r"C:\Users\1\Documents\GitHub\ulyana\src")
-from text3 import normalize, tokenize,top_n,count_freq
-from io_txt_csv import read_text,write_csv,ensure_parent_dir
+from text3 import normalize, tokenize, top_n, count_freq
+from io_txt_csv import read_text, write_csv, ensure_parent_dir
+
 in1 = True
 if in1:
     print("Режим один файл:")
@@ -28,17 +30,6 @@ if in1:
     print("Топ-5:")
     for i in sorted_words:
         print(i[0], i[1])
-
-
-
-
-
-
-
-
-
-
-
 
 
 # src/lab4/text_report.py

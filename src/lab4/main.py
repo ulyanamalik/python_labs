@@ -1,5 +1,7 @@
-from text3 import normalize,tokenize,count_freq,top_n
+from text3 import normalize, tokenize, count_freq, top_n
 import sys
+
+
 def main():
     text = sys.stdin.read()
 
@@ -7,10 +9,8 @@ def main():
         print("Нет входных данных")
         return
 
-
     normalized_text = normalize(text)
     tokens = tokenize(normalized_text)
-
 
     total_words = len(tokens)
     freq_dict = count_freq(tokens)
