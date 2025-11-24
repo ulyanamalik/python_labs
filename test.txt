@@ -1,3 +1,0 @@
-﻿name , age , city
-ulyana , 17 , Rostov
-liza , 22 , Moscow
