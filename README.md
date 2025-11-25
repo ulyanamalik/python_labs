@@ -415,6 +415,9 @@ def test_json_to_csv_empty_file(tmp_path: Path):
 
 <img width="1216" height="76" alt="Снимок экрана 2025-11-24 203649" src="https://github.com/user-attachments/assets/7834239c-a711-46cb-a928-a3c0e18c9293" />
 
+## Покрытие тестов
+
+<img width="1936" height="414" alt="Снимок экрана 2025-11-24 193240" src="https://github.com/user-attachments/assets/c79328b8-c075-4c55-a443-cea045e5275b" />
 
 
 # Лабораторная №6
