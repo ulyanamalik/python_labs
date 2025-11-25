@@ -409,6 +409,9 @@ def test_json_to_csv_empty_file(tmp_path: Path):
 
 ```
 
+<img width="1926" height="631" alt="Снимок экрана 2025-11-25 124518" src="https://github.com/user-attachments/assets/6ef5ac2d-6c42-4abf-8734-f1811105c86d" />
+
+
 <img width="1913" height="814" alt="Снимок экрана 2025-11-24 211047" src="https://github.com/user-attachments/assets/e89ae37a-de8a-4220-b1ba-edf6afabbd8d" />
 
 ## Стиль кода (black)
