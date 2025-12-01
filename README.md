@@ -1,3 +1,787 @@
+# Лабораторная работа №8
+## models.py
+```
+"""
+models.py - модуль с классом Student для лабораторной работы №8.
+Этот файл содержит описание структуры студента с валидацией данных.
+"""
+
+# Импортируем необходимые модули:
+# dataclass - декоратор для автоматического создания методов класса
+# datetime - для работы с датами (проверка формата, вычисление возраста)
+# re - для работы с регулярными выражениями (проверка формата даты)
+# Dict - для указания типа словаря в аннотациях типов
+from dataclasses import dataclass
+from datetime import datetime, date
+import re
+from typing import Dict
+
+
+@dataclass  # Декоратор, который автоматически создает конструктор и другие методы
+class Student:
+    """
+    Класс для представления студента с валидацией данных.
+    
+    Атрибуты класса (поля, которые будут у каждого объекта Student):
+    - fio: ФИО студента (строка)
+    - birthdate: Дата рождения в формате ГГГГ-ММ-ДД (строка)
+    - group: Группа студента, например "SE-01" (строка)
+    - gpa: Средний балл студента, должен быть от 0 до 5 (число с плавающей точкой)
+    """
+    
+    fio: str          # ФИО студента
+    birthdate: str    # Дата рождения в формате "ГГГГ-ММ-ДД"
+    group: str        # Номер группы
+    gpa: float        # Средний балл от 0 до 5
+    
+    def __post_init__(self):
+        """
+        Магический метод, который вызывается автоматически ПОСЛЕ создания объекта.
+        Здесь мы выполняем валидацию (проверку) данных.
+        
+        Действия:
+        1. Проверяем правильность формата даты рождения
+        2. Проверяем, что средний балл в допустимом диапазоне
+        """
+        self._validate_birthdate()  # Вызываем метод проверки даты
+        self._validate_gpa()        # Вызываем метод проверки среднего балла
+    
+    def _validate_birthdate(self):
+        """
+        Приватный метод (начинается с _) для проверки даты рождения.
+        Проверяет:
+        1. Что дата в формате ГГГГ-ММ-ДД (4 цифры, тире, 2 цифры, тире, 2 цифры)
+        2. Что дата действительна (например, не 2023-13-45)
+        
+        Использует:
+        - re.match() - проверяет соответствие строки шаблону
+        - datetime() - пытается создать объект даты, если не получается - дата неверная
+        """
+        # Регулярное выражение для проверки формата ГГГГ-ММ-ДД
+        # ^ - начало строки
+        # \d{4} - ровно 4 цифры (год)
+        # - - тире
+        # \d{2} - ровно 2 цифры (месяц)
+        # - - тире
+        # \d{2} - ровно 2 цифры (день)
+        # $ - конец строки
+        if not re.match(r'^\d{4}-\d{2}-\d{2}$', self.birthdate):
+            # Если строка не соответствует формату, выбрасываем ошибку
+            raise ValueError(f"Неверный формат даты. Ожидается: YYYY-MM-DD")
+        
+        # Далее проверяем, что дата действительно существует
+        try:
+            # Разбиваем строку "2000-05-15" на части: ["2000", "05", "15"]
+            # Преобразуем каждую часть в число: 2000, 5, 15
+            year, month, day = map(int, self.birthdate.split('-'))
+            # Пытаемся создать объект datetime с этими числами
+            # Если месяц=13 или день=45 - это вызовет ValueError
+            datetime(year, month, day)
+        except ValueError:
+            # Если не удалось создать дату, значит дата некорректная
+            raise ValueError(f"Некорректная дата: {self.birthdate}")
+    
+    def _validate_gpa(self):
+        """
+        Приватный метод для проверки среднего балла.
+        Проверяет, что GPA находится в диапазоне от 0.0 до 5.0 включительно.
+        """
+        # Проверяем, что GPA не меньше 0 и не больше 5
+        if not (0.0 <= self.gpa <= 5.0):
+            # Если GPA вне диапазона, выбрасываем ошибку
+            raise ValueError(f"GPA должен быть в диапазоне [0.0, 5.0]")
+    
+    def age(self) -> int:
+        """
+        Публичный метод для вычисления возраста студента.
+        
+        Возвращает:
+        - int: возраст студента в полных годах
+        
+        Логика работы:
+        1. Преобразуем строку с датой рождения в объект date
+        2. Получаем сегодняшнюю дату
+        3. Вычисляем разницу в годах
+        4. Если день рождения в текущем году еще не наступил, вычитаем 1 год
+        
+        Пример:
+        - День рождения: 15 мая 2000 года
+        - Сегодня: 1 декабря 2025 года
+        - Разница в годах: 2025 - 2000 = 25 лет
+        - День рождения уже был в этом году (май < декабря), значит возраст = 25 лет
+        """
+        # Преобразуем строку "2000-05-15" в объект datetime, затем в date
+        birth_date = datetime.strptime(self.birthdate, "%Y-%m-%d").date()
+        today = date.today()  # Получаем сегодняшнюю дату
+        
+        # Вычисляем базовый возраст (разница в годах)
+        age = today.year - birth_date.year
+        
+        # Корректируем возраст, если день рождения в этом году еще не наступил
+        # Сравниваем (месяц, день) сегодняшней даты и даты рождения
+        # Например: (12, 1) < (5, 15) - декабрь меньше мая? НЕТ, значит день рождения уже прошел
+        # Например: (3, 1) < (5, 15) - март меньше мая? ДА, значит день рождения еще не наступил
+        if (today.month, today.day) < (birth_date.month, birth_date.day):
+            age -= 1  # Отнимаем 1 год, если день рождения еще не наступил
+        
+        return age  # Возвращаем возраст в полных годах
+    
+    def to_dict(self) -> Dict[str, any]:
+        """
+        Метод для преобразования объекта Student в словарь.
+        Используется для сериализации (сохранения) данных.
+        
+        Возвращает:
+        - Dict[str, any]: словарь с данными студента
+        
+        Пример возвращаемого словаря:
+        {
+            'fio': 'Иванов Иван Иванович',
+            'birthdate': '2000-05-15',
+            'group': 'SE-01',
+            'gpa': 4.5
+        }
+        """
+        return {
+            'fio': self.fio,          # Копируем ФИО
+            'birthdate': self.birthdate,  # Копируем дату рождения
+            'group': self.group,      # Копируем группу
+            'gpa': self.gpa           # Копируем средний балл
+        }
+    
+    @classmethod  # Декоратор, делающий метод методом класса (работает с классом, а не экземпляром)
+    def from_dict(cls, data: Dict[str, any]) -> 'Student':
+        """
+        Метод класса (работает на уровне класса, а не объекта).
+        Создает объект Student из словаря.
+        
+        Параметры:
+        - data: словарь с данными студента
+        
+        Возвращает:
+        - Student: новый объект класса Student
+        
+        Особенность: @classmethod получает класс (cls) первым параметром,
+        а не объект (self). Это позволяет создавать объекты без существующего экземпляра.
+        
+        Использование:
+        Student.from_dict({'fio': 'Иванов', 'birthdate': '2000-05-15', ...})
+        """
+        # Создаем и возвращаем новый объект Student, распаковывая словарь
+        return cls(
+            fio=data['fio'],           # Берем ФИО из словаря
+            birthdate=data['birthdate'],  # Берем дату рождения из словаря
+            group=data['group'],       # Берем группу из словаря
+            gpa=float(data['gpa'])     # Берем GPA из словаря, преобразуем к float
+        )
+    
+    def __str__(self) -> str:
+        """
+        Магический метод для строкового представления объекта.
+        Вызывается при использовании print(student) или str(student).
+        
+        Возвращает:
+        - str: красиво отформатированная строка с информацией о студенте
+        
+        Пример вывода:
+        Студент: Иванов Иван Иванович
+        Дата рождения: 2000-05-15 (возраст: 25 лет)
+        Группа: SE-01
+        Средний балл: 4.50
+        """
+        return (f"Студент: {self.fio}\n"  # Первая строка: ФИО
+                f"Дата рождения: {self.birthdate} (возраст: {self.age()} лет)\n"  # Вторая строка: дата и возраст
+                f"Группа: {self.group}\n"  # Третья строка: группа
+                f"Средний балл: {self.gpa:.2f}")  # Четвертая строка: GPA с 2 знаками после точки
+
+
+# Блок, который выполнится ТОЛЬКО если этот файл запускают напрямую (python models.py)
+# Если файл импортируют как модуль (from models import Student), этот код НЕ выполнится
+if __name__ == "__main__":
+    """
+    Тестирование работы класса Student при прямом запуске файла.
+    Это как "пример использования" или "демонстрация" класса.
+    """
+    print("Тестирование класса Student:")  # Выводим заголовок
+    
+    # Создаем тестового студента
+    # Student() автоматически вызывает __init__, который создан @dataclass
+    # После создания автоматически вызывается __post_init__ для валидации
+    s = Student(
+        fio="Тест",               # ФИО тестового студента
+        birthdate="2000-01-01",   # Корректная дата рождения
+        group="SE-101",           # Группа
+        gpa=4.0                   # Средний балл
+    )
+    
+    # Выводим студента используя __str__ метод
+    print(s)
+    
+    # Этот блок можно расширить дополнительными тестами:
+    # print(f"Возраст: {s.age()} лет")
+    # print(f"Словарь: {s.to_dict()}")
+    # try:
+    #     # Тест на ошибку валидации
+    #     bad_student = Student(fio="Ошибка", birthdate="2023-13-45", group="SE-01", gpa=3.0)
+    # except ValueError as e:
+    #     print(f"Поймана ошибка валидации: {e}")
+
+```
+<img width="1280" height="512" alt="image" src="https://github.com/user-attachments/assets/61eb3188-6a33-40ab-8ebd-e672dc899af1" />
+
+## serialize.py
+```
+import json
+from typing import List
+
+
+def students_to_json(students, path: str) -> None:
+    """
+    Сохраняет список студентов в JSON файл.
+    
+    Args:
+        students: Список объектов Student - коллекция экземпляров класса Student,
+                  которые нужно сохранить
+        path: Путь к файлу для сохранения - строка с путем к файлу (например: 'students.json')
+    """
+    # Импортируем ВНУТРИ функции
+    # Это делается для избежания циклических импортов
+    # При попытке импорта из текущего пакета (.models)
+    try:
+        from .models import Student
+    except ImportError:
+        # Альтернативный путь - если не сработал относительный импорт,
+        # пробуем абсолютный импорт (для случаев, когда модуль запускается напрямую)
+        from models import Student
+    
+    # Проверка на пустой список студентов
+    if not students:
+        print("Список студентов пуст")
+        return
+    
+    # Преобразуем студентов в словари
+    data = []  # Создаем пустой список для хранения словарей
+    for student in students:  # Итерируемся по каждому студенту в списке
+        # Проверка типа: убеждаемся, что каждый элемент является объектом Student
+        if not isinstance(student, Student):
+            raise TypeError(f"Элемент не является объектом Student: {type(student)}")
+        # Вызываем метод to_dict() у каждого студента для преобразования в словарь
+        # и добавляем результат в список data
+        data.append(student.to_dict())
+    
+    # Записываем в файл
+    # Открываем файл для записи ('w') с кодировкой UTF-8
+    with open(path, 'w', encoding='utf-8') as f:
+        # Сериализуем список словарей в JSON формат
+        # ensure_ascii=False - позволяет сохранять кириллицу и другие Unicode символы
+        # indent=2 - добавляет отступы для читаемости JSON файла
+        json.dump(data, f, ensure_ascii=False, indent=2)
+    
+    # Выводим подтверждение о успешном сохранении
+    print(f"✓ Сохранено {len(students)} студентов в {path}")
+
+
+def students_from_json(path: str):
+    """
+    Загружает список студентов из JSON файла.
+    
+    Args:
+        path: Путь к JSON файлу - строка с путем к файлу, из которого нужно загрузить данные
+        
+    Returns:
+        List[Student]: Список объектов Student - восстановленные из файла экземпляры класса Student
+    """
+    # Импортируем ВНУТРИ функции (аналогично предыдущей функции)
+    try:
+        from .models import Student
+    except ImportError:
+        from models import Student
+    
+    try:
+        # Открываем файл для чтения ('r') с кодировкой UTF-8
+        with open(path, 'r', encoding='utf-8') as f:
+            # Десериализуем JSON данные из файла в объект Python
+            data = json.load(f)
+        
+        # Проверяем, что загруженные данные являются списком
+        if not isinstance(data, list):
+            raise ValueError("JSON должен содержать список")
+        
+        # Создаем объекты Student из словарей
+        students = []  # Создаем пустой список для восстановленных студентов
+        for item in data:  # Итерируемся по каждому словарю в списке
+            try:
+                # Создаем объект Student, передавая значения из словаря
+                # Предполагается, что словарь содержит ключи: 'fio', 'birthdate', 'group', 'gpa'
+                student = Student(
+                    fio=item['fio'],  # ФИО студента (строка)
+                    birthdate=item['birthdate'],  # Дата рождения (строка или datetime)
+                    group=item['group'],  # Группа (строка)
+                    gpa=float(item['gpa'])  # Средний балл (преобразуем к float)
+                )
+                students.append(student)  # Добавляем созданного студента в список
+            except KeyError as e:
+                # Если в словаре отсутствует обязательное поле, пропускаем этот элемент
+                # и выводим предупреждение
+                print(f"⚠ Пропущен элемент: отсутствует поле {e}")
+                continue  # Переходим к следующему элементу
+        
+        # Выводим подтверждение о успешной загрузке
+        print(f"✓ Загружено {len(students)} студентов из {path}")
+        return students  # Возвращаем список восстановленных студентов
+        
+    # Обработка различных исключений:
+    except FileNotFoundError:
+        # Если файл не найден по указанному пути
+        print(f"✗ Файл не найден: {path}")
+        return []  # Возвращаем пустой список
+    except json.JSONDecodeError:
+        # Если файл содержит невалидный JSON
+        print(f"✗ Ошибка в формате JSON файла: {path}")
+        return []  # Возвращаем пустой список
+    except Exception as e:
+        # Обработка любых других неожиданных ошибок
+        print(f"✗ Ошибка при чтении файла {path}: {e}")
+        return []  # Возвращаем пустой список
+
+```
+<img width="1280" height="706" alt="image" src="https://github.com/user-attachments/assets/83292157-dd79-483c-abfa-e35f8eb9cbfb" />
+
+<img width="1280" height="615" alt="image" src="https://github.com/user-attachments/assets/486f1b5f-6a26-450f-bf81-7acedc152c17" />
+
+<img width="1280" height="597" alt="image" src="https://github.com/user-attachments/assets/d6a1ce9f-9fd5-4fb0-b632-c6a41ae9b290" />
+
+
+# Лабораторная работа №7
+
+## Тесты для lib/text.py
+```
+import pytest
+import sys
+import os
+
+# Добавляем корневую директорию проекта в путь поиска модулей Python
+# Это необходимо для того, чтобы можно было импортировать модули из папки src
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
+# Импортируем функции, которые будем тестировать
+from src.lib.text import normalize, tokenize, count_freq, top_n
+
+
+# Тестирование функции normalize
+@pytest.mark.parametrize(
+    "source, expected",
+    [
+        ("ПрИвЕт\nМИр\t", "привет мир"),  # тест: смешанный регистр + спецсимволы
+        ("ёжик, Ёлка", "ежик, елка"),     # тест: буква ё в разных регистрах
+        ("Hello\r\nWorld", "hello world"), # тест: английский текст + спецсимволы
+        ("  двойные   пробелы  ", "двойные пробелы"),  # тест: лишние пробелы
+        ("", ""),                          # тест: пустая строка (граничный случай)
+        ("\t\n   ", ""),                   # тест: только пробельные символы
+    ],
+)
+def test_normalize(source, expected):
+    """Тестирует функцию normalize с различными входными данными"""
+    # Проверяем, что функция normalize возвращает ожидаемый результат
+    assert normalize(source) == expected
+
+
+# Тестирование функции tokenize
+@pytest.mark.parametrize(
+    "source, expected",
+    [
+        ("привет мир", ["привет", "мир"]),          # тест: обычный текст
+        ("один, два, три!", ["один", "два", "три"]), # тест: знаки препинания
+        ("", []),                                   # тест: пустая строка
+        ("   много   пробелов   ", ["много", "пробелов"]),  # тест: лишние пробелы
+        ("слово слово слово", ["слово", "слово", "слово"]), # тест: повторяющиеся слова
+    ],
+)
+def test_tokenize(source, expected):
+    """Тестирует функцию tokenize с различными входными данными"""
+    # Проверяем, что функция tokenize возвращает ожидаемый результат
+    assert tokenize(source) == expected
+
+
+# Тестирование функции count_freq
+@pytest.mark.parametrize(
+    "tokens, expected",
+    [
+        (["a", "b", "a", "c", "b", "a"], {"a": 3, "b": 2, "c": 1}),  # тест: обычный случай
+        ([], {}),  # тест: пустой список (граничный случай)
+    ],
+)
+def test_count_freq(tokens, expected):
+    """Тестирует функцию count_freq с различными входными данными"""
+    # Проверяем, что функция count_freq возвращает ожидаемый результат
+    assert count_freq(tokens) == expected
+
+
+# Тестирование функции top_n
+@pytest.mark.parametrize(
+    "freq_dict, expected",
+    [
+        ({"a": 3, "b": 2, "c": 1}, [("a", 3), ("b", 2), ("c", 1)]),  # обычный случай
+        (
+            {
+                "яблоко": 2,
+                "апельсин": 2,
+                "банан": 2,
+            },  # одинаковые частоты → проверка сортировки по алфавиту
+            [("апельсин", 2), ("банан", 2), ("яблоко", 2)],
+        ),
+        ({}, []),  # тест: пустой словарь (граничный случай)
+        (
+            {
+                "a": 5,
+                "b": 4,
+                "c": 3,
+                "d": 2,
+                "e": 1,
+                "f": 1,
+            },  # больше элементов чем запрошено → проверка ограничения по n
+            [("a", 5), ("b", 4), ("c", 3), ("d", 2), ("e", 1)],
+        ),
+    ],
+)
+def test_top_n(freq_dict, expected):
+    """Тестирует функцию top_n с различными входными данными"""
+    # Проверяем, что функция top_n возвращает ожидаемый результат
+    # ВАЖНО: в функции top_n должен быть второй параметр n, но в тесте он не передается
+    # Это может быть ошибкой - нужно передать значение для n
+    # Предположительно, в последнем тесте n=5
+    assert top_n(freq_dict) == expected
+
+```
+<img width="1941" height="714" alt="Снимок экрана 2025-11-24 211054" src="https://github.com/user-attachments/assets/48d93ba5-45ce-4754-bbe1-6c019d4e15c4" />
+
+
+## Тесты для src/lab05/json_csv.py
+```
+import pytest
+import json
+import csv
+from pathlib import Path
+import sys
+import os
+
+# Добавляем корневую директорию проекта в путь поиска модулей Python
+# Это позволяет импортировать модули из папки src как пакеты
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
+# Импортируем функции для тестирования из модуля json_csv
+from src.lab5.json_csv import json_to_csv, csv_to_json
+
+
+def test_json_to_csv_roundtrip(tmp_path: Path):
+    """
+    Тестирует успешную конвертацию JSON → CSV (позитивный тест)
+    
+    Сценарий:
+    1. Создаем тестовый JSON файл с данными
+    2. Конвертируем в CSV
+    3. Проверяем что CSV файл создан и содержит правильные данные
+    """
+    # Создаем временные файлы для теста
+    src = tmp_path / "people.json"
+    dst = tmp_path / "people.csv"
+
+    # Тестовые данные для конвертации
+    data = [
+        {"name": "Alice", "age": 22},
+        {"name": "Bob", "age": 25},
+    ]
+
+    # Записываем JSON файл
+    src.write_text(json.dumps(data, ensure_ascii=False), encoding="utf-8")
+    
+    # Выполняем конвертацию
+    json_to_csv(str(src), str(dst))
+
+    # Читаем и проверяем результат
+    with dst.open(encoding="utf-8") as f:
+        rows = list(csv.DictReader(f))
+
+    # Проверки:
+    assert len(rows) == 2                    # Должно быть 2 записи
+    assert rows[0]["name"] == "Alice"        # Первая запись - Alice
+    assert rows[1]["age"] == "25"            # Возраст должен быть строкой (особенность CSV)
+
+
+def test_csv_to_json_roundtrip(tmp_path: Path):
+    """
+    Тестирует успешную конвертацию CSV → JSON (позитивный тест)
+    
+    Сценарий:
+    1. Создаем тестовый CSV файл с данными
+    2. Конвертируем в JSON
+    3. Проверяем что JSON файл создан и содержит правильные данные
+    """
+    # Создаем временные файлы для теста
+    src = tmp_path / "people.csv"
+    dst = tmp_path / "people.json"
+
+    # Создаем CSV файл с тестовыми данными
+    with src.open("w", encoding="utf-8", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=["name", "age"])
+        writer.writeheader()                     # Записываем заголовок
+        writer.writerow({"name": "Alice", "age": "22"})  # Первая строка данных
+        writer.writerow({"name": "Bob", "age": "25"})    # Вторая строка данных
+
+    # Выполняем конвертацию
+    csv_to_json(str(src), str(dst))
+    
+    # Читаем и проверяем результат
+    data = json.loads(dst.read_text(encoding="utf-8"))
+
+    # Проверки:
+    assert isinstance(data, list)           # Результат должен быть списком
+    assert len(data) == 2                   # Должно быть 2 элемента
+    assert data[0]["name"] == "Alice"       # Первый элемент - Alice
+    assert data[1]["age"] == "25"           # Возраст сохраняется как строка
+
+
+def test_json_to_csv_invalid_json(tmp_path: Path):
+    """
+    Тестирует обработку некорректного JSON файла (негативный тест)
+    
+    Сценарий:
+    1. Создаем файл с некорректным JSON
+    2. Пытаемся конвертировать
+    3. Ожидаем ValueError
+    """
+    src = tmp_path / "broken.json"
+    dst = tmp_path / "output.csv"
+    
+    # Создаем файл с некорректным JSON
+    src.write_text("not a json", encoding="utf-8")
+
+    # Проверяем что функция выбрасывает ValueError
+    with pytest.raises(ValueError):
+        json_to_csv(str(src), str(dst))
+
+
+def test_csv_to_json_empty_file(tmp_path: Path):
+    """
+    Тестирует обработку пустого CSV файла (негативный тест)
+    
+    Сценарий:
+    1. Создаем полностью пустой файл
+    2. Пытаемся конвертировать
+    3. Ожидаем ValueError
+    """
+    src = tmp_path / "empty.csv"
+    dst = tmp_path / "output.json"
+    
+    # Создаем полностью пустой файл
+    src.write_text("", encoding="utf-8")
+
+    # Проверяем что функция выбрасывает ValueError
+    with pytest.raises(ValueError):
+        csv_to_json(str(src), str(dst))
+
+
+def test_missing_file():
+    """
+    Тестирует обработку отсутствующего файла (негативный тест)
+    
+    Сценарий:
+    1. Пытаемся конвертировать несуществующий файл
+    2. Ожидаем FileNotFoundError
+    """
+    # Пытаемся конвертировать несуществующий файл
+    with pytest.raises(FileNotFoundError):
+        json_to_csv("no_such_file.json", "output.csv")
+
+
+def test_invalid_suffix_to_json(tmp_path: Path):
+    """
+    Тестирует обработку файла с неправильным расширением (негативный тест)
+    
+    Сценарий:
+    1. Создаем файл с расширением .txt вместо .csv
+    2. Пытаемся конвертировать как CSV
+    3. Ожидаем ValueError из-за ошибки парсинга CSV
+    """
+    src = tmp_path / "input.txt"
+    dst = tmp_path / "output.json"
+    
+    # Создаем файл с неправильным содержимым для CSV
+    src.write_text("This is 100% json, trust me", encoding="utf-8")
+    
+    # Проверяем что функция выбрасывает ValueError
+    with pytest.raises(ValueError):
+        csv_to_json(str(src), str(dst))
+
+
+def test_json_to_csv_different_field_sets(tmp_path: Path):
+    """
+    Тестирует JSON → CSV когда объекты имеют разные наборы полей
+    
+    Сценарий:
+    1. Создаем JSON где объекты имеют разные поля
+    2. Конвертируем в CSV
+    3. Проверяем что все поля присутствуют в заголовке
+    """
+    src = tmp_path / "test.json"
+    dst = tmp_path / "test.csv"
+    
+    # Данные с разными наборами полей
+    data = [
+        {"name": "Alice", "age": 25},
+        {"name": "Bob", "city": "Moscow"},        # Другой набор полей
+        {"age": 30, "country": "Russia"}          # Еще один набор полей
+    ]
+    
+    src.write_text(json.dumps(data, ensure_ascii=False), encoding="utf-8")
+    json_to_csv(str(src), str(dst))
+    
+    # Проверяем результат
+    with dst.open(encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        rows = list(reader)
+    
+    # Должны быть все возможные поля
+    assert set(rows[0].keys()) == {"name", "age", "city", "country"}
+    # Проверяем что отсутствующие значения - пустые строки
+    assert rows[1]["age"] == ""  # У Bob нет возраста
+    assert rows[0]["city"] == ""  # У Alice нет города
+
+
+def test_csv_to_json_with_empty_values(tmp_path: Path):
+    """
+    Тестирует CSV → JSON с пустыми значениями в CSV
+    
+    Сценарий:
+    1. Создаем CSV с пустыми ячейками
+    2. Конвертируем в JSON
+    3. Проверяем что пустые значения корректно обработаны
+    """
+    src = tmp_path / "test.csv"
+    dst = tmp_path / "test.json"
+    
+    # Создаем CSV с пустыми значениями
+    with src.open("w", encoding="utf-8", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=["name", "age", "city"])
+        writer.writeheader()
+        writer.writerow({"name": "Alice", "age": "25", "city": "Moscow"})
+        writer.writerow({"name": "Bob", "age": "", "city": ""})        # Пустые значения
+        writer.writerow({"name": "", "age": "30", "city": "SPb"})      # Пустое имя
+    
+    csv_to_json(str(src), str(dst))
+    
+    # Читаем и проверяем результат
+    data = json.loads(dst.read_text(encoding="utf-8"))
+    
+    assert len(data) == 3
+    assert data[1]["age"] == ""      # Пустое значение должно сохраниться
+    assert data[1]["city"] == ""     # Пустое значение должно сохраниться
+    assert data[2]["name"] == ""     # Пустое имя
+
+
+def test_csv_to_json_only_header(tmp_path: Path):
+    """
+    Тестирует CSV → JSON когда файл содержит только заголовок
+    
+    Сценарий:
+    1. Создаем CSV только с заголовком
+    2. Пытаемся конвертировать
+    3. Ожидаем ValueError
+    """
+    src = tmp_path / "header_only.csv"
+    dst = tmp_path / "output.json"
+    
+    # Создаем CSV только с заголовком
+    src.write_text("name,age,city\n", encoding="utf-8")
+    
+    # Проверяем что функция выбрасывает ValueError
+    with pytest.raises(ValueError):
+        csv_to_json(str(src), str(dst))
+
+
+def test_json_to_csv_empty_array(tmp_path: Path):
+    """
+    Тестирует JSON → CSV когда JSON содержит пустой массив
+    
+    Сценарий:
+    1. Создаем JSON с пустым массивом
+    2. Конвертируем в CSV
+    3. Проверяем что CSV файл создан, но не содержит данных (только заголовок)
+    """
+    src = tmp_path / "empty_array.json"
+    dst = tmp_path / "output.csv"
+    
+    # Создаем JSON с пустым массивом
+    src.write_text("[]", encoding="utf-8")
+
+    # Конвертируем - не должно быть ошибки
+    json_to_csv(str(src), str(dst))
+    
+    # Проверяем что CSV файл создан
+    assert dst.exists()
+    
+    # Читаем CSV
+    with dst.open(encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        rows = list(reader)
+    
+    # Должно быть 0 строк данных
+    assert len(rows) == 0
+
+
+def test_csv_to_json_file_not_found():
+    """
+    Тестирует CSV → JSON когда файл не существует
+    
+    Сценарий:
+    1. Пытаемся конвертировать несуществующий CSV файл
+    2. Ожидаем FileNotFoundError
+    """
+    # Пытаемся конвертировать несуществующий файл
+    with pytest.raises(FileNotFoundError):
+        csv_to_json("no_such_file.csv", "output.json")
+
+
+def test_json_to_csv_empty_file(tmp_path: Path):
+    """
+    Тестирует JSON → CSV когда JSON файл пустой (не содержит ничего)
+    
+    Сценарий:
+    1. Создаем полностью пустой файл
+    2. Пытаемся конвертировать
+    3. Ожидаем ValueError
+    """
+    src = tmp_path / "empty.json"
+    dst = tmp_path / "output.csv"
+    
+    # Создаем полностью пустой файл
+    src.write_text("", encoding="utf-8")
+
+    # Проверяем что функция выбрасывает ValueError
+    with pytest.raises(ValueError):
+        json_to_csv(str(src), str(dst))
+
+```
+
+<img width="1926" height="631" alt="Снимок экрана 2025-11-25 124518" src="https://github.com/user-attachments/assets/6ef5ac2d-6c42-4abf-8734-f1811105c86d" />
+
+
+<img width="1913" height="814" alt="Снимок экрана 2025-11-24 211047" src="https://github.com/user-attachments/assets/e89ae37a-de8a-4220-b1ba-edf6afabbd8d" />
+
+## Стиль кода (black)
+
+<img width="1216" height="76" alt="Снимок экрана 2025-11-24 203649" src="https://github.com/user-attachments/assets/7834239c-a711-46cb-a928-a3c0e18c9293" />
+
+## Покрытие тестов
+### Команда
+
+```
+pytest --cov=tests --cov-report=term-missing
+```
+
+<img width="1936" height="414" alt="Снимок экрана 2025-11-24 193240" src="https://github.com/user-attachments/assets/c79328b8-c075-4c55-a443-cea045e5275b" />
+
+
 # Лабораторная №6
 ## Задание 1
 ```
