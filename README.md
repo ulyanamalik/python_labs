@@ -227,6 +227,7 @@ if __name__ == "__main__":
     #     print(f"Поймана ошибка валидации: {e}")
 
 ```
+<img width="1280" height="512" alt="image" src="https://github.com/user-attachments/assets/61eb3188-6a33-40ab-8ebd-e672dc899af1" />
 
 ## serialize.py
 ```
@@ -344,6 +345,12 @@ def students_from_json(path: str):
         return []  # Возвращаем пустой список
 
 ```
+<img width="1280" height="706" alt="image" src="https://github.com/user-attachments/assets/83292157-dd79-483c-abfa-e35f8eb9cbfb" />
+
+<img width="1280" height="615" alt="image" src="https://github.com/user-attachments/assets/486f1b5f-6a26-450f-bf81-7acedc152c17" />
+
+<img width="1280" height="597" alt="image" src="https://github.com/user-attachments/assets/d6a1ce9f-9fd5-4fb0-b632-c6a41ae9b290" />
+
 
 # Лабораторная работа №7
 
