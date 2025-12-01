@@ -347,6 +347,7 @@ def students_from_json(path: str):
 ```
 <img width="1280" height="706" alt="image" src="https://github.com/user-attachments/assets/83292157-dd79-483c-abfa-e35f8eb9cbfb" />
 
+## JSON ФАЙЛЫ
 <img width="1280" height="615" alt="image" src="https://github.com/user-attachments/assets/486f1b5f-6a26-450f-bf81-7acedc152c17" />
 
 <img width="1280" height="597" alt="image" src="https://github.com/user-attachments/assets/d6a1ce9f-9fd5-4fb0-b632-c6a41ae9b290" />
