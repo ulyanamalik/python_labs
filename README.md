@@ -81,130 +81,70 @@ if __name__ == "__main__":#Тестирует класс
     except ValueError as e:
         print(f"Ошибка: {e}")
 ```
-<img width="1280" height="512" alt="image" src="https://github.com/user-attachments/assets/61eb3188-6a33-40ab-8ebd-e672dc899af1" />
+<img width="1280" height="350" alt="image" src="https://github.com/user-attachments/assets/39bf5e30-e882-45da-bad0-088ddb6113d3" />
+
 
 ## serialize.py
 ```
-import json
-from typing import List
+import json #модуль для работы с JSON форматом
+import sys # системные функции (нужен для перенаправления вывода)
+import io #модуль ввода-вывода (для работы с кодировками)
+from typing import List #аннотация типов для списков
+from models import Student #класс студента из файла models.py
 
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8') #принудительно устанавливает кодировку UTF-8 для вывода в консоль
+sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8')
 
-def students_to_json(students, path: str) -> None:
-    """
-    Сохраняет список студентов в JSON файл.
-    
-    Args:
-        students: Список объектов Student - коллекция экземпляров класса Student,
-                  которые нужно сохранить
-        path: Путь к файлу для сохранения - строка с путем к файлу (например: 'students.json')
-    """
-    # Импортируем ВНУТРИ функции
-    # Это делается для избежания циклических импортов
-    # При попытке импорта из текущего пакета (.models)
-    try:
-        from .models import Student
-    except ImportError:
-        # Альтернативный путь - если не сработал относительный импорт,
-        # пробуем абсолютный импорт (для случаев, когда модуль запускается напрямую)
-        from models import Student
-    
-    # Проверка на пустой список студентов
-    if not students:
-        print("Список студентов пуст")
-        return
-    
-    # Преобразуем студентов в словари
-    data = []  # Создаем пустой список для хранения словарей
-    for student in students:  # Итерируемся по каждому студенту в списке
-        # Проверка типа: убеждаемся, что каждый элемент является объектом Student
-        if not isinstance(student, Student):
-            raise TypeError(f"Элемент не является объектом Student: {type(student)}")
-        # Вызываем метод to_dict() у каждого студента для преобразования в словарь
-        # и добавляем результат в список data
-        data.append(student.to_dict())
-    
-    # Записываем в файл
-    # Открываем файл для записи ('w') с кодировкой UTF-8
+def students_to_json(students: List[Student], path: str) -> None: #cохраняет список студентов в JSON файл
+    data = [student.to_dict() for student in students]
     with open(path, 'w', encoding='utf-8') as f:
-        # Сериализуем список словарей в JSON формат
-        # ensure_ascii=False - позволяет сохранять кириллицу и другие Unicode символы
-        # indent=2 - добавляет отступы для читаемости JSON файла
         json.dump(data, f, ensure_ascii=False, indent=2)
-    
-    # Выводим подтверждение о успешном сохранении
-    print(f"✓ Сохранено {len(students)} студентов в {path}")
+    print(f"Данные сохранены в {path}")
 
-
-def students_from_json(path: str):
-    """
-    Загружает список студентов из JSON файла.
-    
-    Args:
-        path: Путь к JSON файлу - строка с путем к файлу, из которого нужно загрузить данные
-        
-    Returns:
-        List[Student]: Список объектов Student - восстановленные из файла экземпляры класса Student
-    """
-    # Импортируем ВНУТРИ функции (аналогично предыдущей функции)
+def students_from_json(path: str) -> List[Student]:# загружает студентов из JSON файла
     try:
-        from .models import Student
-    except ImportError:
-        from models import Student
-    
-    try:
-        # Открываем файл для чтения ('r') с кодировкой UTF-8
-        with open(path, 'r', encoding='utf-8') as f:
-            # Десериализуем JSON данные из файла в объект Python
+        with open(path, 'r', encoding='utf-8-sig') as f:
             data = json.load(f)
-        
-        # Проверяем, что загруженные данные являются списком
-        if not isinstance(data, list):
-            raise ValueError("JSON должен содержать список")
-        
-        # Создаем объекты Student из словарей
-        students = []  # Создаем пустой список для восстановленных студентов
-        for item in data:  # Итерируемся по каждому словарю в списке
+        students = []
+        for item in data:
             try:
-                # Создаем объект Student, передавая значения из словаря
-                # Предполагается, что словарь содержит ключи: 'fio', 'birthdate', 'group', 'gpa'
-                student = Student(
-                    fio=item['fio'],  # ФИО студента (строка)
-                    birthdate=item['birthdate'],  # Дата рождения (строка или datetime)
-                    group=item['group'],  # Группа (строка)
-                    gpa=float(item['gpa'])  # Средний балл (преобразуем к float)
-                )
-                students.append(student)  # Добавляем созданного студента в список
-            except KeyError as e:
-                # Если в словаре отсутствует обязательное поле, пропускаем этот элемент
-                # и выводим предупреждение
-                print(f"⚠ Пропущен элемент: отсутствует поле {e}")
-                continue  # Переходим к следующему элементу
-        
-        # Выводим подтверждение о успешной загрузке
-        print(f"✓ Загружено {len(students)} студентов из {path}")
-        return students  # Возвращаем список восстановленных студентов
-        
-    # Обработка различных исключений:
+                student = Student.from_dict(item)
+                students.append(student)
+            except ValueError as e:
+                print(f"Не удалось создать студента из записи {item}: {e}")
+        print(f"Загружено {len(students)} студентов из {path}")
+        return students   
     except FileNotFoundError:
-        # Если файл не найден по указанному пути
-        print(f"✗ Файл не найден: {path}")
-        return []  # Возвращаем пустой список
-    except json.JSONDecodeError:
-        # Если файл содержит невалидный JSON
-        print(f"✗ Ошибка в формате JSON файла: {path}")
-        return []  # Возвращаем пустой список
-    except Exception as e:
-        # Обработка любых других неожиданных ошибок
-        print(f"✗ Ошибка при чтении файла {path}: {e}")
-        return []  # Возвращаем пустой список
+        print(f"Файл {path} не найден")
+        return []
+    except json.JSONDecodeError as e:
+        print(f"Ошибка при чтении JSON файла: {e}")
+        return []
+if __name__ == "__main__": 
+   
+    students = [
+        Student("Кузнецова Анна Михайловна", "2000-05-12", "ИВТ-21-1", 4.7),
+        Student("Смирнов Денис Олегович", "2001-08-30", "ПМИ-22-2", 3.9),
+        Student("Волкова Елизавета Сергеевна", "1999-11-15", "ФИИТ-20-3", 4.2),
+        Student("Петровский Игорь Викторович", "2002-03-25", "БИ-23-1", 4.8)
+    ]
+
+    
+    students_to_json(students, "data/lab8/students_output.json")
+    loaded_students = students_from_json("data/lab8/students_input.json")
+    
+    for student in loaded_students:
+        print(student)
 
 ```
-<img width="1280" height="706" alt="image" src="https://github.com/user-attachments/assets/83292157-dd79-483c-abfa-e35f8eb9cbfb" />
+<img width="1280" height="418" alt="image" src="https://github.com/user-attachments/assets/54cf4b9a-ecb3-4b8f-9b3d-8d61339e8b59" />
+
 
 ## JSON ФАЙЛЫ
-<img width="1280" height="615" alt="image" src="https://github.com/user-attachments/assets/486f1b5f-6a26-450f-bf81-7acedc152c17" />
+<img width="1034" height="1104" alt="image" src="https://github.com/user-attachments/assets/bee719f3-3d8f-4a94-a16d-58265e6cce12" />
 
-<img width="1280" height="597" alt="image" src="https://github.com/user-attachments/assets/d6a1ce9f-9fd5-4fb0-b632-c6a41ae9b290" />
+<img width="1280" height="727" alt="image" src="https://github.com/user-attachments/assets/a4e47d23-a94f-4816-ae64-2d7b7e4298fa" />
+
 
 
 # Лабораторная работа №7
