@@ -14,7 +14,7 @@ class Student:
     group: str
     gpa: float
 
-    def __post_init__(self): #Вызывается автоматически после __init__()
+    def __post_init__(self): #Вызывается автоматически после __init__(),__post_init__ - вызывается после __init__ в dataclass
                              #Для валидации данных при создании объекта
         if not re.match(r'^\d{4}-\d{2}-\d{2}$', self.birthdate):#Проверяет, что дата в формате
                                                                 #ГГГГ-ММ-ДД (4 цифры, 2 цифры, 2 цифры)
