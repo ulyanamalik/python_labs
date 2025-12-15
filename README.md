@@ -1,6 +1,6 @@
 
 # Лабораторная №9
-##group.py
+## group.py
 ```
 import csv
 from pathlib import Path
@@ -52,8 +52,11 @@ class Group:
 
         self._ensure_storage_exists()  # Сначала проверяем - файл есть?
         with open(self.path, 'r', encoding='utf-8') as f:
-<img width="1131" height="246" alt="image" src="https://github.com/user-attachments/assets/e96cef38-e38c-4ff4-86f0-b69df8ca9f37" />
+
+
 ```
+<img width="1131" height="246" alt="image" src="https://github.com/user-attachments/assets/e96cef38-e38c-4ff4-86f0-b69df8ca9f37" />
+
 
 
 
