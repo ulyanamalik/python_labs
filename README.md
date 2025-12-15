@@ -170,6 +170,7 @@ group.add(Student('Маликова Ульяна Олеговна', '2008-01-27'
         print(student)
 ```
 <img width="1054" height="288" alt="image" src="https://github.com/user-attachments/assets/7d831c40-da75-43e4-b70a-6e0e62f83d13" />
+
 ### ДЛЯ FIND
 
 ```
