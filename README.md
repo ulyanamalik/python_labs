@@ -150,9 +150,53 @@ if __name__ == "__main__":
 
 ```
 
+### ДЛЯ LIST
+
+```
+print(group.list())
+```
+<img width="1074" height="228" alt="image" src="https://github.com/user-attachments/assets/3982e645-e84d-4eaf-9a94-6b08d7aae895" />
 
 
+<img width="1280" height="167" alt="image" src="https://github.com/user-attachments/assets/ff0c585a-f2dc-4a3d-bb47-1819eb80a22c" />
 
+### ДЛЯ ADD
+
+```
+group.add(Student('Маликова Ульяна Олеговна', '2008-01-27', 'БИВТ-25-5', 4.8))
+    print("Студент успешно добавлен")
+    students = group.list()
+    for student in students:
+        print(student)
+```
+<img width="1054" height="288" alt="image" src="https://github.com/user-attachments/assets/7d831c40-da75-43e4-b70a-6e0e62f83d13" />
+### ДЛЯ FIND
+
+```
+found = group.find('Ульяна')
+    print("Найденные студенты:")
+    for student in found:
+        print(f"{student.fio}, {student.birthdate}, {student.group}, {student.gpa}")
+```
+<img width="1033" height="241" alt="image" src="https://github.com/user-attachments/assets/eb121573-08d0-4289-b057-b59e0bb46a94" />
+
+### ДЛЯ REMOVE
+```
+group.remove('Маликова Ульяна')
+    for student in group.list():
+        print(student)
+```
+<img width="1131" height="246" alt="image" src="https://github.com/user-attachments/assets/aa661d39-83ad-447c-ae3b-1a9ec182070f" />
+
+### ДЛЯ UPDATE
+
+```
+group.update('Петрова Анна Сергеевна', **{'birthdate': '2007-06-24', 'group': 'БИВТ-25-3', 'gpa': 4.2})
+    for student in group.list():
+        print(student)
+```
+
+<img width="1131" height="246" alt="image" src="https://github.com/user-attachments/assets/cda3f067-f108-49af-8f1f-0e20c476f26d" />
 
 
 # Лабораторная работа №10
