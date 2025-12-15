@@ -1,3 +1,196 @@
+# Лабораторная №9
+##group.py
+```
+import csv
+from pathlib import Path
+import sys
+from typing import List
+
+# Добавляем путь для импорта
+sys.path.append(str(Path(__file__).parent.parent))
+
+from lab8.models import Student
+
+
+class Group:
+    def __init__(self, storage_path: str):
+        """
+        СОЗДАНИЕ ГРУППЫ СТУДЕНТОВ
+        1. Проверяет - есть ли такой файл?
+        2. Если файла нет - создаёт его и пишет заголовки таблицы
+        3. Если файл есть - проверяет правильные ли в нём заголовки
+        """
+        self.path = Path(storage_path)  # Запоминаем путь к файлу
+        
+        if not self.path.exists():
+            # СОЗДАЁМ ПАПКУ если её нет (чтобы не было ошибки)
+            self.path.parent.mkdir(parents=True, exist_ok=True)
+            # СОЗДАЁМ ФАЙЛ с заголовками столбцов
+            self.path.write_text("fio,birthdate,group,gpa\n", encoding='utf-8')
+        
+        #ПРОВЕРЯЕМ ЗАГОЛОВОК файла (если он не пустой)
+        content = self.path.read_text(encoding='utf-8').strip()
+        if content and not content.split('\n')[0] == 'fio,birthdate,group,gpa':
+            raise ValueError('Не корректный заголовок')
+
+    def _ensure_storage_exists(self):
+        """
+        ВСПОМОГАТЕЛЬНЫЙ МЕТОД: "Убедись что файл существует"
+        
+        Этот метод вызывается перед чтением файла.
+        Если файл был случайно удалён - он создаст его заново.
+        Похож на страховку от ошибок.
+        """
+        if not self.path.exists():
+            self.path.parent.mkdir(parents=True, exist_ok=True)
+            with open(self.path, 'w', encoding='utf-8') as f:
+                f.write('fio,birthdate,group,gpa\n')  # Пишем заголовки
+
+    def _read_all(self) -> List[dict]:
+       # ВСПОМОГАТЕЛЬНЫЙ МЕТОД: "Прочитай всех студентов из файла"
+
+        self._ensure_storage_exists()  # Сначала проверяем - файл есть?
+        with open(self.path, 'r', encoding='utf-8') as f:
+            return list(csv.DictReader(f))  # Читаем файл как таблицу CSV
+
+    def list(self):
+        """
+        ПОЛУЧИТЬ СПИСОК ВСЕХ СТУДЕНТОВ
+        Используется для простого отображения всех студентов.
+        """
+
+        with open(self.path, 'r', encoding='utf-8') as f:
+            rd = csv.reader(f)
+            next(rd)  # Пропускаем первую строку (заголовки)
+            students = list(rd)  # Читаем остальные строки
+        return students
+    
+    def _write_all(self, students: List[dict]):
+        """
+        ВСПОМОГАТЕЛЬНЫЙ МЕТОД: "Сохрани всех студентов в файл"
+        Полностью перезаписывает файл новыми данными.
+        Принимает список словарей с данными студентов и записывает их в CSV файл.
+        Используется после изменений
+        """
+        with open(self.path, 'w', encoding='utf-8', newline='') as f:
+            writer = csv.DictWriter(f, fieldnames=['fio', 'birthdate', 'group', 'gpa'])
+            writer.writeheader()  # Пишем заголовки
+            writer.writerows(students)  # Пишем всех студентов
+
+    def add(self, student: Student):
+        """
+        ДОБАВИТЬ НОВОГО СТУДЕНТА
+        1. Читает всех существующих студентов
+        2. Проверяет - нет ли уже студента с таким же ФИО
+        3. Если нет - добавляет нового студента
+        4. Сохраняет обновлённый список в файл
+        Если студент с таким ФИО уже есть - выдаст ошибку.
+        """
+        rows = self._read_all()  # Читаем всех студентов
+        
+        # ПРОВЕРЯЕМ
+        if any(row['fio'] == student.fio for row in rows):
+            raise ValueError(f"Студент {student.fio} уже существует")
+        
+        # ДОБАВЛЯЕМ
+        rows.append({
+            'fio': student.fio,
+            'birthdate': student.birthdate,
+            'group': student.group,
+            'gpa': str(student.gpa)  # Преобразуем число в строку
+        })
+        
+        self._write_all(rows)  # Сохраняем изменения
+    
+    def find(self, substr: str):
+        """
+        Возвращает список объектов Student (не просто строки).
+        Это позволяет работать с найденными студентами как с объектами.
+        """
+        with open(self.path, 'r', encoding='utf-8') as f:
+            rd = list(csv.DictReader(f))
+        
+        # ИЩЕМ студентов, у которых в ФИО есть нужная подстрока
+        # И преобразуем их в объекты Student
+        return [
+            Student(r['fio'], r['birthdate'], r['group'], float(r['gpa']))
+            for r in rd if substr in r['fio']
+        ]
+    
+    def remove(self, fio: str):
+        """
+        1. Читает всех студентов
+        2. Фильтрует - убирает студента с указанным ФИО
+        3. Сохраняет оставшихся студентов
+        """
+        with open(self.path, 'r', encoding='utf-8') as f:
+            rd = csv.DictReader(f)
+            #Оставляем только тех студентов, у которых НЕТ такого ФИО
+            data_new = [r for r in rd if fio not in r['fio']]
+        
+        #СОХРАНЯЕМ новый список (без удалённого студента)
+        fieldnames = ['fio', 'birthdate', 'group', 'gpa']
+        with open(self.path, 'w', newline='', encoding='utf-8') as f:
+            wr = csv.DictWriter(f, fieldnames=fieldnames)
+            wr.writeheader()  # Пишем заголовки
+            if data_new:  # Если список не пустой
+                wr.writerows(data_new)  # Пишем оставшихся студентов
+
+    def update(self, fio: str, **fields):
+        """
+        ОБНОВИТЬ ДАННЫЕ СТУДЕНТА
+        **fields - это "именованные аргументы", которые можно передавать:
+        - birthdate="новая дата"
+        - group="новая группа"  
+        - gpa=новый_балл
+        """
+        # Преобразуем gpa из строки в число (если передали)
+        for key, value in fields.items():
+            if key == 'gpa':
+                fields[key] = float(value)
+        
+        # СОЗДАЁМ ВРЕМЕННОГО СТУДЕНТА для проверки данных
+        temp_student = Student(fio, **fields)
+        
+        # ГОТОВИМ СЛОВАРЬ С НОВЫМИ ДАННЫМИ
+        data = {
+            'fio': fio,
+            'birthdate': temp_student.birthdate if 'birthdate' in fields else '',
+            'group': temp_student.group if 'group' in fields else '',
+            'gpa': str(temp_student.gpa) if 'gpa' in fields else ''
+        }
+        
+        # ИЩЕМ СТУДЕНТА ДЛЯ ОБНОВЛЕНИЯ
+        with open(self.path, 'r', encoding='utf-8') as f:
+            rd = list(csv.DictReader(f))
+            found = False  # Флаг: нашли ли студента?
+            
+            for r in rd:
+                if fio in r['fio']:  # Нашли студента
+                    # ОБНОВЛЯЕМ только те поля, которые передали
+                    if 'birthdate' in fields:
+                        r['birthdate'] = data['birthdate']
+                    if 'group' in fields:
+                        r['group'] = data['group']
+                    if 'gpa' in fields:
+                        r['gpa'] = data['gpa']
+                    found = True  # Студент найден и обновлён!
+                    break  # Выходим из цикла
+        if not found:
+            raise ValueError(f"Студент {fio} не найден")
+        
+        #СОХРАНЯЕМ ОБНОВЛЁННЫЕ ДАННЫЕ
+        fieldnames = ['fio', 'birthdate', 'group', 'gpa']
+        with open(self.path, 'w', newline='', encoding='utf-8') as f:
+            wr = csv.DictWriter(f, fieldnames=fieldnames)
+            wr.writeheader()  # Заголовки
+            wr.writerows(rd)  # Все студенты (с обновлённым)
+
+
+if __name__ == "__main__":
+    group = Group(r'C:\Users\Ульяна\Documents\GitHub\python_labs\data\lab9\students.csv')
+```
+
 # Лабораторная работа №8
 ## models.py
 ```
