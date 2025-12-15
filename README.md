@@ -1,3 +1,368 @@
+# Лабораторная работа №10
+##тслдв
+```
+# Импорт необходимых модулей
+# collections.deque - двусторонняя очередь для эффективной реализации очереди
+# typing - для аннотаций типов (указания типов аргументов и возвращаемых значений)
+from collections import deque
+from typing import Any, Optional  # Any - любой тип, Optional - может быть None или указанный тип
+
+
+class Stack:
+    # __slots__ оптимизирует память, запрещая создание новых атрибутов кроме указанных
+    # здесь только один атрибут _data
+    __slots__ = ("_data",)
+
+    # Конструктор класса Stack
+    # iterable=None - необязательный аргумент (итерируемый объект для инициализации)
+    def __init__(self, iterable=None) -> None:
+        # Если передан iterable - создаём список из него, иначе пустой список
+        self._data: list[Any] = list(iterable) if iterable is not None else []
+
+    # Метод добавления элемента в стек
+    # item: Any - принимает элемент любого типа
+    def push(self, item: Any) -> None:
+        # Добавляем элемент в конец списка (вершина стека)
+        self._data.append(item)
+
+    # Метод извлечения элемента из стека
+    def pop(self) -> Any:
+        # Если стек пуст - выбрасываем исключение
+        if not self._data:
+            raise IndexError("Взятие элемента из пустого стэка")
+        # Удаляем и возвращаем последний элемент (принцип LIFO)
+        return self._data.pop()
+
+    # Метод просмотра верхнего элемента без извлечения
+    def peek(self) -> Optional[Any]:
+        # Если есть элементы - возвращаем последний, иначе None
+        return self._data[-1] if self._data else None
+
+    # Проверка, пуст ли стек
+    def is_empty(self) -> bool:
+        # Возвращает True если список пуст, False если нет
+        return not self._data
+
+    # Магический метод для получения длины стека через len()
+    def __len__(self) -> int:
+        return len(self._data)
+
+    # Магический метод для строкового представления объекта
+    def __repr__(self) -> str:
+        # Показывает стек в виде Stack([элементы])
+        return f"Stack({self._data!r})"
+
+
+class Queue:
+    # Аналогично Stack, ограничиваем атрибуты для оптимизации
+    __slots__ = ("_data",)
+
+    # Конструктор класса Queue
+    def __init__(self, iterable=None) -> None:
+        # Используем deque вместо list для эффективного удаления из начала
+        self._data: deque[Any] = deque(iterable) if iterable is not None else deque()
+
+    # Метод добавления элемента в очередь (постановка в конец)
+    def enqueue(self, item: Any) -> None:
+        # Добавляем элемент в конец очереди
+        self._data.append(item)
+
+    # Метод извлечения элемента из очереди
+    def dequeue(self) -> Any:
+        # Если очередь пуста - выбрасываем исключение
+        if not self._data:
+            raise IndexError("Взятие элемента из пустой очереди")
+        # Удаляем и возвращаем первый элемент (принцип FIFO)
+        return self._data.popleft()
+
+    # Метод просмотра первого элемента без извлечения
+    def peek(self) -> Optional[Any]:
+        # Если есть элементы - возвращаем первый, иначе None
+        return self._data[0] if self._data else None
+
+    # Проверка, пуста ли очередь
+    def is_empty(self) -> bool:
+        return not self._data
+
+    # Магический метод для получения длины очереди
+    def __len__(self) -> int:
+        return len(self._data)
+
+    # Магический метод для строкового представления
+    def __repr__(self) -> str:
+        # Преобразуем deque в list для красивого вывода
+        return f"Queue({list(self._data)!r})"
+
+
+# Демонстрация работы стека
+print('..........Stack..........')
+
+# Создаём стек с начальными элементами [1,2,3,4]
+stack = Stack([1, 2, 3, 4])
+
+# Извлекаем верхний элемент (4)
+print(f'Снятие верхнего элемента стека : {stack.pop()}')
+
+# Проверяем, пуст ли стек (False, так как остались 1,2,3)
+print(f'Пустой ли стек? {stack.is_empty()}')
+
+# Смотрим верхний элемент без извлечения (3)
+print(f'Число сверху : {stack.peek()}')
+
+# Добавляем элемент 1 в стек
+stack.push(1)
+
+# Смотрим верхний элемент (1)
+print(f'Значение сверху после добавления числа в стек : {stack.peek()}')
+
+# Получаем длину стека (4: 1,2,3 и добавленная 1)
+print(f'Длина стека : {len(stack)}')
+
+# Прямой доступ к внутренним данным (обычно так делать не рекомендуется)
+print(f'Стек : {stack._data}')
+
+# Демонстрация работы очереди
+print('.........Queue.......')
+
+# Создаём очередь с начальными элементами [1,2,3,4]
+q = Queue([1, 2, 3, 4])
+
+# Смотрим первый элемент без извлечения (1)
+print(f'Значение первого элемента : {q.peek()}')
+
+# Удаляем первый элемент (1)
+q.dequeue()
+
+# Смотрим новый первый элемент (2)
+print(f'Значение первого элемента после удаления числа : {q.peek()}')
+
+# Добавляем элемент 52 в конец очереди
+q.enqueue(52)
+
+# Смотрим первый элемент (2, так как 52 добавился в конец)
+print(f'Значение первого элемента после добавления числа : {q.peek()}')
+
+# Проверяем, пуста ли очередь (False)
+print(f'Пустая ли очередь? {q.is_empty()}')
+
+# Получаем длину очереди (4: 2,3,4,52)
+print(f'Количество элементов в очереди : {len(q)}')
+```
+## dnjhfz
+```
+# Импорт типов для аннотаций
+# Any - любой тип данных
+# Iterator - тип для итератора
+# Optional - может быть указанного типа или None
+from typing import Any, Iterator, Optional
+
+
+# Класс Node - узел односвязного списка
+# __slots__ ограничивает атрибуты для оптимизации памяти
+class Node:
+    __slots__ = ("value", "next")  # Только два атрибута: значение и ссылка на следующий узел
+
+    # Конструктор узла
+    # value: Any - значение любого типа
+    # next: Optional["Node"] = None - ссылка на следующий узел (по умолчанию None)
+    def __init__(self, value: Any, next: Optional["Node"] = None) -> None:
+        self.value = value  # Значение узла
+        self.next = next    # Ссылка на следующий узел (None если это последний)
+
+    # Строковое представление узла для отладки
+    def __repr__(self) -> str:
+        return f"Node({self.value!r})"  # !r - вызывает repr() для значения
+
+
+# Класс SinglyLinkedList - односвязный список
+class SinglyLinkedList:
+    __slots__ = ("head", "tail", "_size")  # Голова, хвост и размер списка
+
+    # Конструктор списка
+    def __init__(self, iterable=None) -> None:
+        self.head: Optional[Node] = None  # Начало списка (первый узел)
+        self.tail: Optional[Node] = None  # Конец списка (последний узел)
+        self._size: int = 0               # Количество элементов в списке
+        
+        # Если передан итерируемый объект - добавляем все его элементы
+        if iterable:
+            for v in iterable:  # Для каждого значения в итерируемом объекте
+                self.append(v)  # Добавляем в конец списка
+
+    def append(self, value: Any) -> None:
+        """Добавить в конец — O(1)."""
+        node = Node(value)  # Создаём новый узел
+        
+        # Если список пустой
+        if not self.head:
+            self.head = node  # Новый узел становится головой
+            self.tail = node  # И хвостом одновременно
+        else:
+            # Список не пустой
+            assert self.tail is not None  # Гарантируем, что хвост существует
+            self.tail.next = node  # Старый хвост ссылается на новый узел
+            self.tail = node       # Новый узел становится новым хвостом
+        
+        self._size += 1  # Увеличиваем счётчик элементов
+
+    def prepend(self, value: Any) -> None:
+        """Добавить в начало — O(1)."""
+        # Создаём узел, который ссылается на текущую голову
+        node = Node(value, next=self.head)
+        self.head = node  # Новый узел становится головой
+        
+        # Если список был пустым, новый узел также становится хвостом
+        if self._size == 0:
+            self.tail = node
+        
+        self._size += 1  # Увеличиваем счётчик элементов
+
+    def insert(self, idx: int, value: Any) -> None:
+        """Вставить по индексу. Допускаются idx==0 и idx==len."""
+        # Проверка корректности индекса
+        if idx < 0 or idx > self._size:
+            raise IndexError("insert index out of range")
+        
+        # Если вставляем в начало - используем prepend
+        if idx == 0:
+            self.prepend(value)
+            return
+        
+        # Если вставляем в конец - используем append
+        if idx == self._size:
+            self.append(value)
+            return
+        
+        # Вставляем в середину списка
+        # Ищем узел, который будет предшествовать новому
+        prev = self.head  # Начинаем с головы
+        for _ in range(idx - 1):  # Проходим idx-1 шагов
+            assert prev is not None  # Гарантируем, что узел существует
+            prev = prev.next  # Переходим к следующему узлу
+        
+        assert prev is not None  # Гарантируем, что нашли узел
+        # Создаём новый узел, который ссылается на следующий после prev
+        node = Node(value, next=prev.next)
+        prev.next = node  # Предыдущий узел теперь ссылается на новый
+        self._size += 1   # Увеличиваем счётчик
+
+    def remove(self, value: Any) -> None:
+        """Удалить первое вхождение value. Если не найдено — ValueError."""
+        prev: Optional[Node] = None  # Предыдущий узел (в начале None)
+        cur = self.head              # Текущий узел (начинаем с головы)
+        idx = 0
+        
+        # Проходим по всем узлам
+        while cur:
+            # Если нашли нужное значение
+            if cur.value == value:
+                # Удаляем узел cur
+                if prev is None:
+                    # Если удаляем голову
+                    self.head = cur.next  # Голова становится следующим узлом
+                else:
+                    # Если удаляем не голову
+                    prev.next = cur.next  # Пропускаем удаляемый узел
+                
+                # Если удаляем хвост
+                if cur is self.tail:
+                    self.tail = prev  # Хвостом становится предыдущий узел
+                
+                self._size -= 1  # Уменьшаем счётчик
+                return  # Выходим после удаления первого вхождения
+            
+            # Переходим к следующему узлу
+            prev, cur = cur, cur.next
+            idx += 1
+        
+        # Если значение не найдено
+        raise ValueError("remove: value not found in SinglyLinkedList")
+
+    def remove_at(self, idx: int) -> None:
+        """Удалить элемент по индексу. Возбуждает IndexError при неверном индексе."""
+        # Проверка корректности индекса
+        if idx < 0 or idx >= self._size:
+            raise IndexError("remove_at index out of range")
+        
+        prev: Optional[Node] = None  # Предыдущий узел
+        cur = self.head              # Текущий узел
+        
+        # Ищем узел с нужным индексом
+        for _ in range(idx):
+            # Перемещаем указатели
+            prev, cur = cur, cur.next  # type: ignore (игнорируем предупреждение типов)
+        
+        assert cur is not None  # Гарантируем, что нашли узел
+        
+        # Удаляем узел cur
+        if prev is None:
+            # Если удаляем голову
+            self.head = cur.next
+        else:
+            # Если удаляем не голову
+            prev.next = cur.next
+        
+        # Если удаляем хвост
+        if cur is self.tail:
+            self.tail = prev
+        
+        self._size -= 1  # Уменьшаем счётчик
+
+    def __iter__(self) -> Iterator[Any]:
+        """Итератор для перебора элементов списка."""
+        cur = self.head  # Начинаем с головы
+        while cur:  # Пока есть текущий узел
+            yield cur.value  # Возвращаем значение текущего узла
+            cur = cur.next   # Переходим к следующему узлу
+
+    def __len__(self) -> int:
+        """Возвращает количество элементов в списке."""
+        return self._size
+
+    def __repr__(self) -> str:
+        """Формальное строковое представление для отладки."""
+        # Собираем все элементы через запятую в квадратных скобках
+        return f"SinglyLinkedList([{', '.join(repr(x) for x in self)}])"
+
+    def __str__(self) -> str:
+        """Наглядное строковое представление: [1] -> [2] -> [3] -> None."""
+        parts = []  # Список строковых представлений узлов
+        cur = self.head  # Начинаем с головы
+        
+        # Проходим по всем узлам
+        while cur:
+            parts.append(f"[{cur.value!s}]")  # Добавляем значение узла
+            cur = cur.next  # Переходим к следующему
+        
+        parts.append("None")  # Добавляем None в конце
+        return " -> ".join(parts)  # Соединяем стрелками
+
+
+# Демонстрация работы односвязного списка
+
+# Создаём пустой список
+sll = SinglyLinkedList()
+print(f'Длина нашего односвязанного списка : {len(sll)}')  
+
+# Добавляем элементы
+sll.append(1)    # Добавляем 1 в конец
+sll.append(2)    # Добавляем 2 в конец
+sll.prepend(0)   # Добавляем 0 в начало
+print(f'Наша ныняшняя длина списка после добавления элементов : {len(sll)}')  
+print(f'Односвязаный список : {list(sll)}')  
+
+# Вставляем элемент по индексу
+sll.insert(1, 0.5)  # Вставляем 0.5 на позицию 1 (между 0 и 1)
+print(f'Длина списка после добавления на 1 индекс числа 0.5 : {len(sll)}')
+print(f'Односвязаный список : {list(sll)}')
+
+# Добавляем элемент в конец
+sll.append(52)
+print(f'Односвязанный список после добавления числа в конец : {list(sll)}')
+# Выводим наглядное представление списка
+print(sll)
+
+```
 # Лабораторная №9
 ##group.py
 ```
